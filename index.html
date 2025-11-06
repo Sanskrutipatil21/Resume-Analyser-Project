@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <title>Modern Login Page | AsmrProg</title>
+</head>
+
+<body>
+
+    <div class="container" id="container">
+        <div class="form-container sign-up">
+            <form>
+                <h1>Create Account</h1><br>
+            
+                <span>use your email for registeration</span><br>
+                <input type="text" placeholder="Name">
+                <input type="email" placeholder="Email">
+                <input type="password" placeholder="Password"><br>
+                <button>Sign Up</button>
+            </form>
+        </div>
+        <div class="form-container sign-in">
+            <form>
+                <h1>Sign In</h1>
+                <br>
+                <span> use your email password</span>
+                <br>
+                <input type="email" placeholder="Email">
+                <br>
+                <input type="password" placeholder="Password">
+               <br>
+                <button>Sign In</button>
+            </form>
+        </div>
+        <div class="toggle-container">
+            <div class="toggle">
+                <div class="toggle-panel toggle-left">
+                    <h1>Welcome Back!</h1>
+                    <p>Enter your personal details to use all of site features</p>
+                    <button class="hidden" id="login">Sign In</button>
+                </div>
+                <div class="toggle-panel toggle-right">
+                    <h1>Hello, Friend!</h1>
+                    <p>Register with your personal details to use all of site features</p>
+                    <button class="hidden" id="register">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   <!-- Always load your animation script first -->
+<script src="script.js"></script>
+
+<!-- Then load Firebase -->
+<script type="module">
+  // Import the Firebase SDKs
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+  import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+
+  // Your Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyD2g-a5Z9uvzMuAe7o0-00pXz3HK-Mupxk",
+    authDomain: "login-signup-app-dd873.firebaseapp.com",
+    projectId: "login-signup-app-dd873",
+    storageBucket: "login-signup-app-dd873.firebasestorage.app",
+    messagingSenderId: "174804431167",
+    appId: "1:174804431167:web:c8f97e4676a53a79dde38a"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  console.log("Firebase initialized successfully!");
+
+  // Export for use in auth.js
+  export { auth };
+</script>
+
+<!-- Finally load your Firebase logic -->
+<script type="module" src="auth.js"></script>
+
+
+
+</body>
+
+</html>

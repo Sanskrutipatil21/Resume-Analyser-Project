@@ -1,0 +1,234 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+body{
+  background-color: #eae5f9;
+}
+* {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: linear gradient  #512da8;
+}
+
+/* ===== Navbar Styling ===== */
+nav {
+  background: linear-gradient(90deg, #5c6bc0, #512da8, #5c6bc0);
+  padding: 22px 0;
+  margin-top: 10px;
+  border-radius: 40px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  
+}
+
+/* Align nav items horizontally to the right */
+nav ul {
+  list-style: none;
+  display: flex;
+  justify-content: right;
+  margin: 0;
+  padding: 0 40px;
+}
+
+/* Space between items */
+nav ul li {
+  margin: 0 35px;
+  position: relative; /* Important for underline positioning */
+}
+
+/* Style for links */
+nav ul li a {
+  text-decoration: none;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  transition: color 0.3s ease;
+  position: relative; /* isolate hover underline */
+  padding-bottom: 5px;
+}
+
+/* Hover text color */
+nav ul li a:hover {
+  color: #fefbfb; /* gold color on hover */
+}
+
+/* === Underline animation (appears only under hovered item) === */
+nav ul li a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 0%;
+  height: 3px;
+  background-color: #ffffff;
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+/* When hovered, underline expands */
+nav ul li a:hover::after {
+  width: 100%;
+}
+
+.box{
+   box-sizing: border-box;
+  height: 30 vh;
+  width: 70%;
+  margin: 15vh auto ;
+  font-size: 30px;
+text-align: center;
+
+}
+.box h1{
+    font-size: 3rem;
+}
+
+.box1{
+  position: relative;
+  box-sizing: border-box;
+  border: solid #e8e3fc;
+  height: 70vh ;
+  margin: 40px;
+  font-size: 20px;
+  background: #e6e3f1;
+
+}
+.box1 h1{
+  font-size: 24px;
+  padding: 20px;
+}
+.box1 i{
+  font-size: 40px;
+ 
+}
+.box1 p{
+  padding-left: 20px;
+}
+.subbox1{position: relative;
+  border: 2px solid rgb(216, 211, 211);
+  width: 40vw;
+  height: 40vh;
+  margin: auto;
+   margin-top:30px ;
+  border-radius: 30px;
+  text-align: center;
+  padding: 5vh;
+
+
+  
+}
+.subbox1 i{
+  font-size: 50px;
+  padding: 40px;
+  color: #512da8;
+
+}
+    input[type="file"] {
+      display: none !important;
+    }
+
+
+.upload-label {
+  position: absolute;
+  inset: 0; /* covers full box */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+ 
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 20px;
+}
+.upload-label i{
+  margin-top: 10vh;
+ padding: 13px;
+}
+
+    .box2{
+     position: relative;
+  box-sizing: border-box;
+  border: solid #e8e3fc;
+  height: 110vh ;
+  margin: 40px;
+  font-size: 20px;
+  background: #e6e3f1;
+    }
+
+    .target-company{
+      padding-top: 5vh;
+      padding-left: 2vh;
+      
+    }
+    .target-company input{
+      width: 40vw;
+      height: 5vh;
+      margin: 3vh 0vh;
+      border: 0.5px solid rgb(105, 103, 103) ;
+      border-radius:4px;
+      padding-left: 1vh;
+    }
+    .target-role{
+      padding: 2vh 2vh;
+    }
+    .target-role input{
+      width: 40vw;
+         height: 5vh;
+      margin: 3vh 0vh;
+      padding-left: 1vh;
+            border: 0.5px solid rgb(105, 103, 103) ;
+
+            border-radius:4px;
+
+    }
+    .target-info{
+      padding: 2vh 2vh;
+    }
+    .target-info textarea{
+      width: 40vw;
+         height: 15vh;
+      margin: 3vh 0vh;
+      padding: 1vh;
+      resize: none;
+            border: 0.5px solid rgb(105, 103, 103) ;
+
+            border-radius:14px;
+
+    }
+    input:focus, textarea:focus {
+  outline: none; /* remove default black outline */
+  border: 0,5px solid #a5b2fd; /* elegant purple-blue border */
+  box-shadow: 0 0 8px rgba(92, 107, 192, 0.5); /* soft glow effect */
+  transition: all 0.3s ease;
+}
+
+
+.submit {
+  text-align: left;
+  margin-top: 40px;
+ 
+}
+
+
+.submit input[type="submit"] {
+  background: linear-gradient(9deg, #512da8, #e7e1ec);
+  color: white;
+  border: none;
+  padding: 12px 40px;
+  border-radius: 30px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:0.2s ease-in-out;
+  outline: none;
+   width: 40vh;
+  height: 10vh;
+}
+
+.submit input[type="submit"]:hover {
+  background:  linear-gradient(9deg,  #e7e1ec, #512da8);
+  color: white;
+  box-shadow: 0 0 10px #512da8;
+
+}

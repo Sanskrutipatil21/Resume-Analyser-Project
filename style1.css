@@ -1,0 +1,205 @@
+
+
+
+
+
+
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+body{
+  background-color: #eae5f9;
+}
+* {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: linear gradient  #512da8;
+}
+
+/* ===== Navbar Styling ===== */
+nav {
+  background: linear-gradient(90deg, #5c6bc0, #512da8, #5c6bc0);
+  padding: 22px 0;
+  margin-top: 10px;
+  border-radius: 40px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  
+}
+
+/* Align nav items horizontally to the right */
+nav ul {
+  list-style: none;
+  display: flex;
+  justify-content: right;
+  margin: 0;
+  padding: 0 40px;
+}
+
+/* Space between items */
+nav ul li {
+  margin: 0 35px;
+  position: relative; /* Important for underline positioning */
+}
+
+/* Style for links */
+nav ul li a {
+  text-decoration: none;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  transition: color 0.3s ease;
+  position: relative; /* isolate hover underline */
+  padding-bottom: 5px;
+}
+
+/* Hover text color */
+nav ul li a:hover {
+  color: #fefbfb; /* gold color on hover */
+}
+
+/* === Underline animation (appears only under hovered item) === */
+nav ul li a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 0%;
+  height: 3px;
+  background-color: #ffffff;
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+/* When hovered, underline expands */
+nav ul li a:hover::after {
+  width: 100%;
+}
+
+
+.main{
+ 
+  box-sizing: border-box;
+  height: 30 vh;
+  width: 80%;
+  margin: 10vh auto ;
+  font-size: 30px;
+text-align: center;
+
+}
+.main h1{
+  font-size: 12vh;
+  
+}
+
+.start {
+  box-sizing: border-box;
+ 
+  background:linear-gradient(45deg,  #512da8, #5c6bc0);
+  margin: 10vh auto;
+  padding: 10px 30px;          /* add space around text */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 30px;
+  width: fit-content;          /* adjusts to text size automatically */
+  max-width: 90%;              /* prevents it from overflowing screen */
+  text-align: center;
+
+}
+
+/* Inside text */
+.start a {
+  text-decoration: none;
+  color: white;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;         /* keeps “Get Started →” on one line */
+}
+  .start a i{
+font-size: 30px;
+  }
+
+
+  .start:hover {
+  transform: scale(1.02);
+  background: linear-gradient(45deg, #5c6bc0, #512da8); /* nice shine effect */
+  transition: 0.2s ease-in-out;
+}
+
+
+
+
+
+.container{
+ 
+  box-sizing: border-box;
+  height: 20 vh;
+  width: 80%;
+  margin: 10vh auto ;
+  font-size: 30px;
+text-align: center;
+
+}
+.container h1{
+  font-size: 10vh;
+  
+}
+
+
+.steps-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+  padding: 40px 20px;
+}
+
+.step-card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 30px 25px;
+  width: 260px;
+  text-align: center;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s ease;
+  border: 2px solid transparent;
+}
+
+.step-card:hover {
+  transform: translateY(-8px);
+  border-color: #512da8;
+  box-shadow: 0 10px 25px rgba(81, 45, 168, 0.2);
+}
+
+.step-card i {
+  font-size: 40px;
+  color: #512da8;
+  margin-bottom: 15px;
+  transition: color 0.4s ease;
+}
+
+.step-card:hover i {
+  color: #512da8;
+}
+
+.step-card h3 {
+  font-size: 1.3rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.step-card p {
+  font-size: 0.95rem;
+  color: #555;
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .step-card {
+    width: 90%;
+  }
+}
+
