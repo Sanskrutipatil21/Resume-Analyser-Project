@@ -1,78 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style2.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <title>Analyze Resume</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="style2.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
+
 <body>
-    
-  <nav>
-    <ul>
-      <li><a href="home.html">Home</a></li>
-      <li><a href="index2.html">Analyse</a></li>
-      <li><a href="#">Contact Us</a></li>
-      <li><a href="index.html">Log Out</a></li>
-    </ul>
-  </nav>
 
+<nav>
+  <ul>
+    <li><a href="home.html">Home</a></li>
+    <li><a href="index2.html" class="active">Analyse</a></li>
+    <li><a href="#">Contact Us</a></li>
+    <li><a href="index.html">Log Out</a></li>
+  </ul>
+</nav>
 
+<div class="box">
+  <h1>Ready to Unlock Your Potential?</h1>
+  <p>Upload your resume and analyze it using NLP & ML</p>
+</div>
 
-        <div class="box">
-            <h1>Ready to Unlock Your Potential?</h1>
-Upload your resume and let our AI analyze your path to success
-        </div>
+<!-- Upload Resume -->
+<div class="box1">
+  <h2><i class="fa-regular fa-file"></i> Upload Resume</h2>
+  <p>PDF, DOC or DOCX supported</p>
 
+  <label for="resumeUpload" class="upload-label">
+    <i class="fa-solid fa-arrow-up-from-bracket"></i>
+    <div id="uploadText">Click to Upload Resume</div>
+  </label>
 
-        <div class="box1">
-         <h1><i class="fa-regular fa-file"></i>Upload Your Resume</h1>
-        <p>Upload your resume in PDF format for analysis</p>
-        <div class="subbox1">
-      <!--  this label replaces ugly choose file button -->
-    <label for="resumeUpload" class="upload-label">
-     <i class="fa-solid fa-arrow-up-from-bracket"></i>
-      <div class="upload-text">Click to Upload Resume</div>
-    </label>
+  <input
+    type="file"
+    id="resumeUpload"
+    accept=".pdf,.doc,.docx"
+    hidden
+  >
+</div>
 
-    <!-- hidden input -->
-    <input type="file" id="resumeUpload" accept=".pdf,.doc,.docx">
+<!-- Job Details -->
+<div class="box2">
 
-    
-        </div>
-        </div>
+  <div class="target-company">
+    <p><i class="fa-solid fa-building"></i> Target Company *</p>
+    <input type="text" id="companyInput" placeholder="Google, Microsoft, Amazon">
+  </div>
 
+  <div class="target-role">
+    <p><i class="fa-solid fa-bullseye"></i> Target Role *</p>
+    <input type="text" id="roleInput" placeholder="Software Engineer, Data Analyst">
+  </div>
 
-        <div class="box2">
-          <h1>Target Position</h1>
-          <p>specify more about your dream job</p>
-           
-          <div class="target-company">
-            <p><i class="fa-solid fa-suitcase"></i> Target Company*</p>
-            <input type="text"placeholder="e.g., Google,Microsoft,Apple"required>
+  <div class="target-info">
+    <p><i class="fa-solid fa-pen-to-square"></i> Additional Information</p>
+    <textarea id="descriptionInput" placeholder="Optional details"></textarea>
+  </div>
 
-          </div>
-          <div class="target-role">
-            <p><i class="fa-solid fa-bullseye"></i> Target Role*</p>
-            <input type="text"placeholder="e.g., Senior Software Engineer,Product Manager" required>
+  <div class="submit">
+    <button id="analyzeBtn">Analyse Resume</button>
+  </div>
 
-          </div>
-          <div class="target-info">
-            <p><i class="fa-solid fa-pen-to-square"></i> Additional Informaton</p>
-              <textarea placeholder="Any specific requirement, preferences or context..."></textarea>
+</div>
 
-              <div class="submit">
-                <input type="submit"value="Analyse">
-
-              </div>
-
-
-          </div>
-
-        </div>
-
-
-       <script src="script2.js"></script>
+<script src="script2.js"></script>
 </body>
 </html>
