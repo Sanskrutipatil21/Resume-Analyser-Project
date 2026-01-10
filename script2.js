@@ -1,76 +1,74 @@
-const fileInput = document.getElementById('resumeUpload');
+const resumeInput = document.getElementById("resumeUpload");
+const uploadText = document.getElementById("uploadText");
+const analyzeBtn = document.getElementById("analyzeBtn");
 
-// Create a text element to show file name
-const fileName = document.createElement('div');
-fileName.className = 'file-name';
-fileName.style.marginTop = '15px';
-fileName.style.fontSize = '16px';
-fileName.style.color = '#333';
-fileName.textContent = 'No file selected';
+const companyInput = document.getElementById("companyInput");
+const roleInput = document.getElementById("roleInput");
+const descriptionInput = document.getElementById("descriptionInput");
 
-// Add that text under subbox
-document.querySelector('.subbox1').appendChild(fileName);
-
-// When file is selected
-fileInput.addEventListener('change', function() {
-  if (this.files.length > 0) {
-    const file = this.files[0];
-    fileName.textContent = ` ${file.name}`;
-    fileName.style.color = '#4caf50';
-    document.querySelector('.subbox1').style.borderColor = '#4caf50';
-    document.querySelector('.subbox1').style.boxShadow = '0 0 20px rgba(76,175,80,0.3)';
-  } else {
-    fileName.textContent = 'No file selected';
-    fileName.style.color = '#333';
-    document.querySelector('.subbox1').style.borderColor = 'rgb(216,211,211)';
-    document.querySelector('.subbox1').style.boxShadow = 'none';
+/* Show selected file name */
+resumeInput.addEventListener("change", () => {
+  if (resumeInput.files.length > 0) {
+    uploadText.innerText = resumeInput.files[0].name;
   }
 });
 
-// script2.js
+/* Analyze Resume */
+analyzeBtn.addEventListener("click", async () => {
 
-document.addEventListener("DOMContentLoaded", () => {
-  const analyseBtn = document.querySelector('.submit input[type="submit"]');
-  const resumeInput = document.getElementById("resumeUpload");
-  const companyInput = document.querySelector(".target-company input");
-  const roleInput = document.querySelector(".target-role input");
+  // Validation
+  if (resumeInput.files.length === 0) {
+    alert("Please upload your resume.");
+    return;
+  }
 
-  analyseBtn.addEventListener("click", () => {
-    // Check required inputs
-    if (!resumeInput.files.length) {
-      alert("⚠️ Please upload your resume before analysing!");
-      resumeInput.scrollIntoView({ behavior: "smooth", block: "center" });
-      resumeInput.style.outline = "2px solid red";
-      return;
-    }
+  if (companyInput.value.trim() === "") {
+    alert("Please enter target company.");
+    return;
+  }
 
-    if (companyInput.value.trim() === "") {
-      alert("⚠️ Please enter your target company!");
-      companyInput.focus();
-      companyInput.style.border = "2px solid red";
-      return;
-    }
+  if (roleInput.value.trim() === "") {
+    alert("Please enter target job role.");
+    return;
+  }
 
-    if (roleInput.value.trim() === "") {
-      alert("⚠️ Please enter your target role!");
-      roleInput.focus();
-      roleInput.style.border = "2px solid red";
-      return;
-    }
+  // Prepare form data (must match backend)
+  const formData = new FormData();
+  formData.append("resume", resumeInput.files[0]);
+  formData.append("company", companyInput.value.trim());
+  formData.append("role", roleInput.value.trim());
+  formData.append("description", descriptionInput.value.trim());
 
-    // If all fields filled — perform action
-    alert("✅ Resume analysis started!\n\nCompany: " + companyInput.value + "\nRole: " + roleInput.value);
-    
-    // You can later replace alert with:
-    // window.location.href = "analysis_result.html"; 
-    // or send data to backend using fetch()
-  });
+  analyzeBtn.disabled = true;
+  analyzeBtn.innerText = "Analyzing...";
 
-  // Remove red border when user types
-  [companyInput, roleInput].forEach(input => {
-    input.addEventListener("input", () => {
-      input.style.border = "2px solid #683dbfff";
+  try {
+    const response = await fetch("http://127.0.0.1:8000/analyze", {
+      method: "POST",
+      body: formData
     });
-  });
-});
 
+    const result = await response.json();
+
+    // Handle backend errors
+    if (!response.ok || result.error) {
+      alert(result.error || "Resume analysis failed.");
+      analyzeBtn.disabled = false;
+      analyzeBtn.innerText = "Analyse Resume";
+      return;
+    }
+
+    // Store result for result.html
+    localStorage.setItem("analysisResult", JSON.stringify(result));
+
+    // Redirect
+    window.location.href = "result.html";
+
+  } catch (error) {
+    console.error(error);
+    alert("Server error. Make sure backend is running.");
+  } finally {
+    analyzeBtn.disabled = false;
+    analyzeBtn.innerText = "Analyse Resume";
+  }
+});
