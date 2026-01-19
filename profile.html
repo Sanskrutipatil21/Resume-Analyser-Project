@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>User Profile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Font Awesome -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+  />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: #eae5f9;
+      color: #2b2c2d;
+    }
+
+    /* ---------- NAVBAR ---------- */
+    nav {
+      background: linear-gradient(90deg, #5c6bc0, #512da8, #5c6bc0);
+      padding: 18px 40px;
+      border-radius: 40px;
+      margin: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 30px;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      font-size: 18px;
+      position: relative;
+    }
+
+    nav ul li a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -5px;
+      width: 0%;
+      height: 3px;
+      background: white;
+      transition: width 0.3s ease;
+    }
+
+    nav ul li a:hover::after {
+      width: 100%;
+    }
+
+    /* ---------- PROFILE HEADER ---------- */
+    .profile-header {
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    .profile-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6366f1, #b2a4d9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+      margin: auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    .profile-name {
+      margin-top: 15px;
+      font-size: 26px;
+      font-weight: 600;
+    }
+
+    /* ---------- HISTORY SECTION ---------- */
+    .history-section {
+      max-width: 900px;
+      margin: 50px auto;
+      padding: 0 20px;
+    }
+
+    .history-section h2 {
+      margin-bottom: 25px;
+      font-size: 24px;
+    }
+
+    .history-card {
+      background:#eae5f9;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      transition: transform 0.2s ease;
+    }
+
+    .history-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .history-card .row {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .history-card span {
+      color: #94a3b8;
+      font-size: 14px;
+    }
+
+    .score {
+      font-size: 22px;
+      font-weight: bold;
+      color: #71629e;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <div style="color:white;font-size:20px;font-weight:600;">
+      Resume Analyzer
+    </div>
+
+    <ul>
+      <li><a href="home.html">Home</a></li>
+      <li><a href="index2.html">Analyse</a></li>
+      <li><a href="contact.html">Contact Us</a></li>
+      <li><a href="index.html">Log Out</a></li>
+    </ul>
+  </nav>
+
+  <!-- PROFILE HEADER -->
+  <div class="profile-header">
+    <div class="profile-avatar">👤</div>
+    <div class="profile-name" id="profileName">User Name</div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="history-section">
+    <h2>Previous Resume Analysis</h2>
+
+    <!-- SAMPLE CARD (STATIC FOR NOW) -->
+   <div class="history-section">
+ 
+  <div id="historyList"></div>
+</div>
+
+<script type="module" src="profile.js"></script>
+<script type="module" src="auth.js"></script>
+
+
+
+</body>
+</html>
