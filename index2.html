@@ -1,24 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Analyze Resume</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <link rel="stylesheet" href="style2.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <link rel="stylesheet" href="style2.css" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+  />
 </head>
 
 <body>
-
 <nav>
-  <ul>
-    <li><a href="home.html">Home</a></li>
-    <li><a href="index2.html" class="active">Analyse</a></li>
-    <li><a href="#">Contact Us</a></li>
-    <li><a href="index.html">Log Out</a></li>
-  </ul>
+  <div class="nav-container">
+
+    <!-- User Profile (LEFT) -->
+   <a href="profile.html" class="nav-user">
+  <div class="user-avatar">👤</div>
+  <span id="userName" class="user-name">Guest</span>
+</a>
+
+
+    <!-- Navigation Links (RIGHT) -->
+    <ul>
+      <li><a href="home.html">Home</a></li>
+      <li><a href="index2.html" class="active">Analyse</a></li>
+      <li><a href="contact.html">Contact Us</a></li>
+      <li><a href="index.html" onclick="logoutUser()">Log Out</a></li>
+    </ul>
+
+  </div>
 </nav>
+
 
 <div class="box">
   <h1>Ready to Unlock Your Potential?</h1>
@@ -40,7 +55,7 @@
     id="resumeUpload"
     accept=".pdf,.doc,.docx"
     hidden
-  >
+  />
 </div>
 
 <!-- Job Details -->
@@ -48,17 +63,17 @@
 
   <div class="target-company">
     <p><i class="fa-solid fa-building"></i> Target Company *</p>
-    <input type="text" id="companyInput" placeholder="Google, Microsoft, Amazon">
+    <input type="text" id="companyInput" placeholder="Google, Microsoft" />
   </div>
 
   <div class="target-role">
     <p><i class="fa-solid fa-bullseye"></i> Target Role *</p>
-    <input type="text" id="roleInput" placeholder="Software Engineer, Data Analyst">
+    <input type="text" id="roleInput" placeholder="Software Engineer" />
   </div>
 
   <div class="target-info">
     <p><i class="fa-solid fa-pen-to-square"></i> Additional Information</p>
-    <textarea id="descriptionInput" placeholder="Optional details"></textarea>
+    <textarea id="descriptionInput"></textarea>
   </div>
 
   <div class="submit">
@@ -67,6 +82,8 @@
 
 </div>
 
-<script src="script2.js"></script>
+<script type="module" src="auth.js"></script>
+<script type="module" src="script2.js"></script>
+
 </body>
 </html>
