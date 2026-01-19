@@ -12,16 +12,25 @@
 
 </head>
 <body>
+<nav>
+  <div class="nav-container">
 
-  <nav>
+    <!-- Profile (LEFT) -->
+    <a href="profile.html" class="nav-user">
+      <div class="user-avatar">👤</div>
+      <span id="userName" class="user-name">Guest</span>
+    </a>
+
+    <!-- Menu (RIGHT) -->
     <ul>
-      <li><a href="home.html">Home</a></li>
+      <li><a href="home.html" class="active">Home</a></li>
       <li><a href="index2.html">Analyse</a></li>
-      <li><a href="#">Contact Us</a></li>
+      <li><a href="contact.html">Contact Us</a></li>
       <li><a href="index.html">Log Out</a></li>
     </ul>
-  </nav>
 
+  </div>
+</nav>
 
 
   <div class="main">
@@ -65,6 +74,13 @@ Unlock your career potential with intelligent, personalized resume insights.
       <p>Receive actionable feedback and insights to stand out confidently.</p>
     </div>
   </div>
+<script>
+  const username = localStorage.getItem("username");
+  if (username) {
+    document.getElementById("userName").textContent = username;
+  }
+</script>
+<script type="module" src="auth.js"></script>
 
 
 </body>
