@@ -19,6 +19,38 @@ body{
 }
 
 /* ===== Navbar Styling ===== */
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+}
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 6px; /* 👈 makes it slightly lower */
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.user-name {
+  white-space: nowrap;
+}
+
 nav {
   background: linear-gradient(90deg, #5c6bc0, #512da8, #5c6bc0);
   padding: 22px 0;
@@ -32,7 +64,7 @@ nav {
 nav ul {
   list-style: none;
   display: flex;
-  justify-content: right;
+  justify-content: flex-end; 
   margin: 0;
   padding: 0 40px;
 }
@@ -78,6 +110,29 @@ nav ul li a:hover::after {
   width: 100%;
 }
 
+/* === Underline for user name (same as nav links) === */
+.user-name {
+  position: relative;
+  padding-bottom: 5px;
+}
+
+/* Underline hidden by default */
+.user-name::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 0%;
+  height: 3px;
+  background-color: #ffffff;
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+/* Show underline on hover */
+.nav-user:hover .user-name::after {
+  width: 100%;
+}
 
 .main{
  
