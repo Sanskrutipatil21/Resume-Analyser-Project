@@ -1,4 +1,3 @@
-// ---------------- FIREBASE IMPORTS ----------------
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
 import {
@@ -8,28 +7,26 @@ import {
   orderBy
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-// ---------------- ELEMENTS ----------------
+// DOM elements
 const historyList = document.getElementById("historyList");
 const profileName = document.getElementById("profileName");
 
-// ---------------- AUTH STATE ----------------
+// Auth check
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = "index.html";
     return;
   }
 
-  // Show user name
   profileName.innerText =
     user.displayName || user.email.split("@")[0];
 
-  // Load resume history
   loadResumeHistory(user.uid);
 });
 
-// ---------------- LOAD HISTORY ----------------
+// Load resume history
 async function loadResumeHistory(uid) {
-  historyList.innerHTML = "<p>Loading history...</p>";
+  historyList.innerHTML = `<p style="opacity:0.7">Loading resume history...</p>`;
 
   try {
     const q = query(
@@ -41,33 +38,43 @@ async function loadResumeHistory(uid) {
 
     if (snapshot.empty) {
       historyList.innerHTML =
-        "<p>No resume analysis found yet.</p>";
+        `<p style="opacity:0.7">No resume analysis done yet.</p>`;
       return;
     }
 
     historyList.innerHTML = "";
 
-    snapshot.forEach((doc) => {
-      const data = doc.data();
-      const date = data.createdAt?.toDate().toDateString() || "N/A";
+    snapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+
+      const company = data.company || "Resume Analysis";
+      const role = data.role || "General Profile";
+      const score = data.score ?? "--";
+      const date =
+        data.createdAt?.toDate().toDateString() || "N/A";
 
       historyList.innerHTML += `
-        <div class="history-card">
+        <div class="history-card" onclick="openResult('${docSnap.id}')">
           <div class="row">
             <div>
-              <strong>${data.company}</strong><br>
-              <span>${data.role}</span>
+              <strong>${company}</strong><br />
+              <span>${role}</span>
             </div>
-            <div class="score">${data.score}%</div>
+            <div class="score">${score}%</div>
           </div>
           <span>Analyzed on: ${date}</span>
         </div>
       `;
     });
 
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
     historyList.innerHTML =
-      "<p>Error loading resume history.</p>";
+      `<p style="color:red">Failed to load history.</p>`;
   }
 }
+
+
+window.openResult = function (docId) {
+  window.location.href = `result.html?id=${docId}`;
+};
