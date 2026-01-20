@@ -1,3 +1,15 @@
+// ================= FIREBASE IMPORTS =================
+import { auth, db } from "./firebase.js";
+import {
+  addDoc,
+  collection,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+import {
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+
+// ================= DOM ELEMENTS =================
 const resumeInput = document.getElementById("resumeUpload");
 const uploadText = document.getElementById("uploadText");
 const analyzeBtn = document.getElementById("analyzeBtn");
@@ -6,17 +18,17 @@ const companyInput = document.getElementById("companyInput");
 const roleInput = document.getElementById("roleInput");
 const descriptionInput = document.getElementById("descriptionInput");
 
-/* Show selected file name */
+// ================= FILE NAME DISPLAY =================
 resumeInput.addEventListener("change", () => {
   if (resumeInput.files.length > 0) {
     uploadText.innerText = resumeInput.files[0].name;
   }
 });
 
-/* Analyze Resume */
+// ================= ANALYZE RESUME =================
 analyzeBtn.addEventListener("click", async () => {
 
-  // Validation
+  // ---------- Validation ----------
   if (resumeInput.files.length === 0) {
     alert("Please upload your resume.");
     return;
@@ -32,43 +44,65 @@ analyzeBtn.addEventListener("click", async () => {
     return;
   }
 
-  // Prepare form data (must match backend)
-  const formData = new FormData();
-  formData.append("resume", resumeInput.files[0]);
-  formData.append("company", companyInput.value.trim());
-  formData.append("role", roleInput.value.trim());
-  formData.append("description", descriptionInput.value.trim());
-
   analyzeBtn.disabled = true;
   analyzeBtn.innerText = "Analyzing...";
 
-  try {
-    const response = await fetch("http://127.0.0.1:8000/analyze", {
-      method: "POST",
-      body: formData
-    });
-
-    const result = await response.json();
-
-    // Handle backend errors
-    if (!response.ok || result.error) {
-      alert(result.error || "Resume analysis failed.");
+  // ---------- WAIT FOR AUTH (CRITICAL FIX) ----------
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      alert("You must be logged in.");
       analyzeBtn.disabled = false;
       analyzeBtn.innerText = "Analyse Resume";
       return;
     }
 
-    // Store result for result.html
-    localStorage.setItem("analysisResult", JSON.stringify(result));
+    // ---------- Prepare Form Data ----------
+    const formData = new FormData();
+    formData.append("resume", resumeInput.files[0]);
+    formData.append("company", companyInput.value.trim());
+    formData.append("role", roleInput.value.trim());
+    formData.append("description", descriptionInput.value.trim());
 
-    // Redirect
-    window.location.href = "result.html";
+    try {
+      const response = await fetch("http://127.0.0.1:8000/analyze", {
+        method: "POST",
+        body: formData
+      });
 
-  } catch (error) {
-    console.error(error);
-    alert("Server error. Make sure backend is running.");
-  } finally {
-    analyzeBtn.disabled = false;
-    analyzeBtn.innerText = "Analyse Resume";
-  }
+      const result = await response.json();
+
+      if (!response.ok || result.error) {
+        alert(result.error || "Resume analysis failed.");
+        analyzeBtn.disabled = false;
+        analyzeBtn.innerText = "Analyse Resume";
+        return;
+      }
+
+      // ----------  SAVE TO FIRESTORE (THIS WAS MISSING) ----------
+      await addDoc(
+        collection(db, "resumeHistory", user.uid, "analyses"),
+        {
+          company: companyInput.value.trim(),
+          role: roleInput.value.trim(),
+          score: Number(result.match_score) || 0,
+          fullResult: result,
+          createdAt: serverTimestamp()
+        }
+      );
+
+      // ---------- Store result for result.html ----------
+      localStorage.setItem("analysisResult", JSON.stringify(result));
+
+      // ---------- Redirect ----------
+      window.location.href = "result.html";
+
+    } catch (error) {
+      console.error(error);
+      alert("Server error. Make sure backend is running.");
+    } finally {
+      analyzeBtn.disabled = false;
+      analyzeBtn.innerText = "Analyse Resume";
+    }
+  });
 });
+
