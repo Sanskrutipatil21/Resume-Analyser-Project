@@ -5,7 +5,10 @@
   <title>Analyze Resume</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <!-- Main Styles -->
   <link rel="stylesheet" href="style2.css" />
+
+  <!-- Font Awesome -->
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
@@ -13,15 +16,16 @@
 </head>
 
 <body>
+
+<!-- ================= NAVBAR ================= -->
 <nav>
   <div class="nav-container">
 
     <!-- User Profile (LEFT) -->
-   <a href="profile.html" class="nav-user">
-  <div class="user-avatar">👤</div>
-  <span id="userName" class="user-name">Guest</span>
-</a>
-
+    <a href="profile.html" class="nav-user">
+      <div class="user-avatar">👤</div>
+      <span id="userName" class="user-name">Guest</span>
+    </a>
 
     <!-- Navigation Links (RIGHT) -->
     <ul>
@@ -34,13 +38,13 @@
   </div>
 </nav>
 
-
+<!-- ================= HEADER ================= -->
 <div class="box">
   <h1>Ready to Unlock Your Potential?</h1>
   <p>Upload your resume and analyze it using NLP & ML</p>
 </div>
 
-<!-- Upload Resume -->
+<!-- ================= UPLOAD SECTION ================= -->
 <div class="box1">
   <h2><i class="fa-regular fa-file"></i> Upload Resume</h2>
   <p>PDF, DOC or DOCX supported</p>
@@ -58,7 +62,7 @@
   />
 </div>
 
-<!-- Job Details -->
+<!-- ================= JOB DETAILS ================= -->
 <div class="box2">
 
   <div class="target-company">
@@ -73,7 +77,7 @@
 
   <div class="target-info">
     <p><i class="fa-solid fa-pen-to-square"></i> Additional Information</p>
-    <textarea id="descriptionInput"></textarea>
+    <textarea id="descriptionInput" placeholder="Optional"></textarea>
   </div>
 
   <div class="submit">
@@ -82,6 +86,19 @@
 
 </div>
 
+<!-- ================= LOADING OVERLAY ================= -->
+<div id="loadingOverlay" class="loading-overlay hidden">
+  <div class="loading-card">
+    <div class="spinner"></div>
+    <h2>Please wait</h2>
+    <p>
+      Your resume is being analyzed.<br />
+      This may take <b>2–4 minutes</b>.
+    </p>
+  </div>
+</div>
+
+<!-- ================= SCRIPTS ================= -->
 <script type="module" src="auth.js"></script>
 <script type="module" src="script2.js"></script>
 
