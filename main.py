@@ -1,14 +1,19 @@
 import io
 import re
 import pickle
+import requests
+
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pypdf import PdfReader
 from docx import Document
 
-app = FastAPI(title="ML Resume Analyzer")
 
-# ------------------ CORS ------------------
+# ======================================================
+# APP  (i will expand it in college project)
+# ======================================================
+app = FastAPI(title="AI Resume Analyzer")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -16,11 +21,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ------------------ Load trained ML ------------------
+
+# ======================================================
+# LOAD ML MODELS
+# ======================================================
 model = pickle.load(open("resume_model.pkl", "rb"))
 vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
 
-# ------------------ Text cleaning ------------------
+
+# ======================================================
+# HELPERS
+# ======================================================
 def clean_text(text: str) -> str:
     text = text.lower()
     text = re.sub(r"http\S+", " ", text)
@@ -28,7 +39,74 @@ def clean_text(text: str) -> str:
     text = re.sub(r"\s+", " ", text)
     return text.strip()
 
-# ------------------ API ------------------
+
+def extract_text(file: UploadFile) -> str:
+    content = file.file.read()
+
+    if file.filename.lower().endswith(".pdf"):
+        reader = PdfReader(io.BytesIO(content))
+        return " ".join(page.extract_text() or "" for page in reader.pages)
+
+    if file.filename.lower().endswith(".docx"):
+        doc = Document(io.BytesIO(content))
+        return " ".join(p.text for p in doc.paragraphs)
+
+    return ""
+
+
+# ======================================================
+# OLLAMA (QWEN 2.5 – NO FALLBACK)
+# ======================================================
+def call_ollama(resume_text: str, company: str, role: str) -> str:
+    resume_text = resume_text[:1800]
+
+    prompt = f"""
+You are a senior ATS resume evaluator.
+
+Analyze ONLY the resume.
+
+Return STRICTLY in this format:
+
+Strengths:
+- ...
+
+Weaknesses:
+- ...
+
+Improvement Areas:
+- ...
+
+Actionable Suggestions:
+- ...
+
+Target Company: {company}
+Target Role: {role}
+
+Resume:
+{resume_text}
+"""
+
+    response = requests.post(
+        "http://localhost:11434/api/generate",
+        json={
+            "model": "qwen2.5:0.5b",
+            "prompt": prompt,
+            "stream": False,
+            "options": {
+                "temperature": 0.4,
+                "num_predict": 350
+            }
+        },
+        timeout=60
+    )
+
+    response.raise_for_status()
+    return response.json().get("response", "")
+
+
+# ======================================================
+# API ENDPOINT
+# ======================================================
 @app.post("/analyze")
 async def analyze_resume(
     resume: UploadFile = File(...),
@@ -36,71 +114,25 @@ async def analyze_resume(
     role: str = Form(...),
     description: str = Form("")
 ):
-    # 1. Read uploaded file
-    file_bytes = await resume.read()
-    resume_text = ""
-
-    # 2. PDF
-    if resume.content_type == "application/pdf":
-        reader = PdfReader(io.BytesIO(file_bytes))
-        for page in reader.pages:
-            if page.extract_text():
-                resume_text += page.extract_text() + "\n"
-
-    # 3. DOC / DOCX
-    elif resume.content_type in [
-        "application/msword",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    ]:
-        doc = Document(io.BytesIO(file_bytes))
-        for para in doc.paragraphs:
-            resume_text += para.text + "\n"
-
-    else:
-        return {"error": "Unsupported file type. Upload PDF, DOC, or DOCX only."}
+    resume_text = extract_text(resume)
 
     if not resume_text.strip():
-        return {"error": "Could not extract text from resume"}
+        return {"error": "Unable to extract resume text"}
 
-    # 4. CLEAN + VECTORIZE
+    # -------- ML SCORE --------
     cleaned = clean_text(resume_text)
-    vectorized = vectorizer.transform([cleaned])
+    vec = vectorizer.transform([cleaned])
 
-    # 5. ML prediction
-    predicted_category = model.predict(vectorized)[0]
-    ml_confidence = max(model.predict_proba(vectorized)[0]) * 100
+    predicted_category = model.predict(vec)[0]
+    confidence = max(model.predict_proba(vec)[0]) * 100
 
-    # 6. ROLE MATCH SCORE (this makes score CHANGE)
-    role_clean = clean_text(role)
-    resume_words = set(cleaned.split())
-    role_words = set(role_clean.split())
+    # -------- OLLAMA --------
+    ai_output = call_ollama(resume_text, company, role)
 
-    overlap = resume_words.intersection(role_words)
-    role_match_score = (len(overlap) / max(len(role_words), 1)) * 100
-
-    # 7. FINAL job-fit score
-    final_score = (0.4 * ml_confidence) + (0.6 * role_match_score)
-
-    # 8. Strengths / weaknesses
-    strengths = []
-    weaknesses = []
-
-    if final_score > 75:
-        strengths.append("Resume strongly matches the target role")
-    else:
-        weaknesses.append("Resume could be better aligned with the job role")
-
-    if len(resume_text.split()) < 300:
-        weaknesses.append("Resume content is too short")
-
-    # 9. Response
     return {
         "company": company,
         "job_role": role,
         "predicted_category": predicted_category,
-        "match_score": round(final_score, 2),
-        "strengths": strengths,
-        "weaknesses": weaknesses,
-        "improvement_areas": [],
-        "actionable_suggestions": []
+        "match_score": round(confidence, 2),
+        "analysis": ai_output
     }
