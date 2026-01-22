@@ -9,6 +9,13 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
 
+// ================= BACKEND URL =================
+// LOCAL:
+// const BACKEND_URL = "http://127.0.0.1:8000/analyze";
+
+// PRODUCTION (Render):
+const BACKEND_URL = "http://127.0.0.1:8000/analyze";
+
 // ================= DOM ELEMENTS =================
 const resumeInput = document.getElementById("resumeUpload");
 const uploadText = document.getElementById("uploadText");
@@ -36,7 +43,7 @@ resumeInput.addEventListener("change", () => {
   }
 });
 
-// ================= AUTH STATE (RUN ONCE) =================
+// ================= AUTH STATE =================
 let currentUser = null;
 
 onAuthStateChanged(auth, (user) => {
@@ -46,18 +53,18 @@ onAuthStateChanged(auth, (user) => {
 // ================= ANALYZE RESUME =================
 analyzeBtn.addEventListener("click", async () => {
 
-  // ---------- Validation ----------
+  // ---------- VALIDATION ----------
   if (resumeInput.files.length === 0) {
     alert("Please upload your resume.");
     return;
   }
 
-  if (companyInput.value.trim() === "") {
+  if (!companyInput.value.trim()) {
     alert("Please enter target company.");
     return;
   }
 
-  if (roleInput.value.trim() === "") {
+  if (!roleInput.value.trim()) {
     alert("Please enter target job role.");
     return;
   }
@@ -72,7 +79,7 @@ analyzeBtn.addEventListener("click", async () => {
   analyzeBtn.innerText = "Analyzing...";
   showLoading();
 
-  // ---------- Prepare Form Data ----------
+  // ---------- FORM DATA ----------
   const formData = new FormData();
   formData.append("resume", resumeInput.files[0]);
   formData.append("company", companyInput.value.trim());
@@ -80,7 +87,7 @@ analyzeBtn.addEventListener("click", async () => {
   formData.append("description", descriptionInput.value.trim());
 
   try {
-    const response = await fetch("http://127.0.0.1:8000/analyze", {
+    const response = await fetch(BACKEND_URL, {
       method: "POST",
       body: formData
     });
@@ -95,23 +102,24 @@ analyzeBtn.addEventListener("click", async () => {
     await addDoc(
       collection(db, "resumeHistory", currentUser.uid, "analyses"),
       {
-        company: companyInput.value.trim(),
-        role: roleInput.value.trim(),
+        company: result.company,
+        role: result.job_role,
         score: Number(result.match_score) || 0,
-        fullResult: result,
+        predictedCategory: result.predicted_category || "",
+        analysis: result.analysis,
         createdAt: serverTimestamp()
       }
     );
 
-    // ---------- Store result for result.html ----------
+    // ---------- STORE RESULT ----------
     localStorage.setItem("analysisResult", JSON.stringify(result));
 
-    // ---------- Redirect ----------
+    // ---------- REDIRECT ----------
     window.location.href = "result.html";
 
   } catch (error) {
-    console.error(error);
-    alert("Server error. Please wait and try again.");
+    console.error("Analyze Error:", error);
+    alert("Server error. Please try again in a moment.");
   } finally {
     hideLoading();
     analyzeBtn.disabled = false;
