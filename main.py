@@ -1,16 +1,17 @@
 import io
 import re
+import os
 import pickle
-import requests
 
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pypdf import PdfReader
 from docx import Document
+from groq import Groq
 
 
 # ======================================================
-# APP  (i will expand it in college project)
+# APP
 # ======================================================
 app = FastAPI(title="AI Resume Analyzer")
 
@@ -27,6 +28,12 @@ app.add_middleware(
 # ======================================================
 model = pickle.load(open("resume_model.pkl", "rb"))
 vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
+
+
+# ======================================================
+# GROQ CLIENT
+# ======================================================
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 
 # ======================================================
@@ -55,17 +62,17 @@ def extract_text(file: UploadFile) -> str:
 
 
 # ======================================================
-# OLLAMA (QWEN 2.5 – NO FALLBACK)
+# GROQ AI ANALYSIS
 # ======================================================
-def call_ollama(resume_text: str, company: str, role: str) -> str:
-    resume_text = resume_text[:1800]
+def get_ai_analysis(resume_text: str, company: str, role: str) -> str:
+    resume_text = resume_text[:1800]  # safety limit
 
     prompt = f"""
 You are a senior ATS resume evaluator.
 
-Analyze ONLY the resume.
+Analyze ONLY the resume below.
 
-Return STRICTLY in this format:
+Return strictly in this format:
 
 Strengths:
 - ...
@@ -86,22 +93,17 @@ Resume:
 {resume_text}
 """
 
-    response = requests.post(
-        "http://localhost:11434/api/generate",
-        json={
-            "model": "qwen2.5:0.5b",
-            "prompt": prompt,
-            "stream": False,
-            "options": {
-                "temperature": 0.4,
-                "num_predict": 350
-            }
-        },
-        timeout=60
+    response = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[
+            {"role": "system", "content": "You are an expert resume analyst."},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.4,
+        max_tokens=450
     )
 
-    response.raise_for_status()
-    return response.json().get("response", "")
+    return response.choices[0].message.content.strip()
 
 
 # ======================================================
@@ -126,13 +128,13 @@ async def analyze_resume(
     predicted_category = model.predict(vec)[0]
     confidence = max(model.predict_proba(vec)[0]) * 100
 
-    # -------- OLLAMA --------
-    ai_output = call_ollama(resume_text, company, role)
+    # -------- AI ANALYSIS (GROQ) --------
+    analysis = get_ai_analysis(resume_text, company, role)
 
     return {
         "company": company,
         "job_role": role,
         "predicted_category": predicted_category,
         "match_score": round(confidence, 2),
-        "analysis": ai_output
+        "analysis": analysis
     }
