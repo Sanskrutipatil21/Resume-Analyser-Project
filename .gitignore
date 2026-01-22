@@ -1,0 +1,16 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environment
+.venv/
+
+# Environment variables
+.env
+
+# Model files (large)
+*.pkl
+
+# OS files
+.DS_Store
+Thumbs.db
