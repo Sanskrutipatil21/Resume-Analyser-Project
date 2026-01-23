@@ -68,3 +68,4 @@ onAuthStateChanged(auth, (user) => {
     ? user.displayName || user.email.split("@")[0]
     : "Guest";
 });
+
