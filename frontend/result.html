@@ -5,6 +5,7 @@
   <title>Resume Analysis Result</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <!-- ===== STYLES ===== -->
   <style>
     /* ===== NAV ===== */
     nav {
@@ -14,30 +15,40 @@
       border-radius: 40px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
-
     .nav-container {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 40px;
     }
-
     nav ul {
       list-style: none;
       display: flex;
       margin: 0;
       padding: 0;
     }
-
     nav ul li {
-      margin: 0 35px;
+      margin: 0 25px;
     }
-
     nav ul li a {
       text-decoration: none;
       color: white;
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 500;
+      position: relative;
+    }
+    nav ul li a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -3px;
+      width: 0%;
+      height: 2px;
+      background: white;
+      transition: width 0.3s ease;
+    }
+    nav ul li a:hover::after {
+      width: 100%;
     }
 
     /* ===== THEME ===== */
@@ -88,26 +99,21 @@
       height: 230px;
       position: relative;
     }
-
     .donut svg {
       transform: rotate(-90deg);
     }
-
     .donut circle {
       fill: none;
       stroke-width: 26;
     }
-
     .bg {
       stroke: #1e293b;
     }
-
     .progress {
       stroke: var(--primary);
       stroke-linecap: round;
       transition: stroke-dashoffset 1.4s ease;
     }
-
     .donut-center {
       position: absolute;
       top: 50%;
@@ -140,13 +146,13 @@
       margin-bottom: 8px;
     }
 
+    /* ===== ACTIONS ===== */
     .actions {
       display: flex;
       justify-content: center;
       gap: 15px;
       margin-top: 30px;
     }
-
     button {
       background: transparent;
       border: 2px solid var(--primary);
@@ -154,8 +160,8 @@
       padding: 12px 20px;
       border-radius: 10px;
       cursor: pointer;
+      transition: 0.3s ease;
     }
-
     button:hover {
       background: var(--primary);
       color: white;
@@ -172,145 +178,179 @@
 </head>
 
 <body>
-
-<nav>
-  <div class="nav-container">
-    <div style="color:white;font-weight:600;">Resume Analyzer</div>
-    <ul>
-      <li><a href="home.html">Home</a></li>
-      <li><a href="index2.html">Analyse</a></li>
-      <li><a href="contact.html">Contact</a></li>
-    </ul>
-  </div>
-</nav>
-
-<div class="container">
-  <h1>Your Career Analysis Results</h1>
-  <p class="subtitle">Personalized insights based on your resume</p>
-
-  <div id="content"></div>
-
-  <div class="actions">
-    <button onclick="goBack()">Analyze Another Resume</button>
-    <button onclick="clearResult()">Clear Result</button>
-    <button onclick="downloadPDF()">Download PDF</button>
-  </div>
-</div>
-
-<!-- ================= LOGIC ================= -->
-<script>
-function parseAnalysis(text) {
-  const sections = {
-    strengths: [],
-    weaknesses: [],
-    improvement_areas: [],
-    actionable_suggestions: []
-  };
-
-  let current = null;
-
-  text.split("\n").forEach(line => {
-    line = line.trim();
-
-    if (/^strengths/i.test(line)) current = "strengths";
-    else if (/^weaknesses/i.test(line)) current = "weaknesses";
-    else if (/^improvement/i.test(line)) current = "improvement_areas";
-    else if (/^actionable/i.test(line)) current = "actionable_suggestions";
-    else if (line.startsWith("-") && current) {
-      sections[current].push(line.replace(/^-\s*/, ""));
-    }
-  });
-
-  return sections;
-}
-
-const content = document.getElementById("content");
-const rawData = localStorage.getItem("analysisResult");
-
-if (!rawData) {
-  content.innerHTML = `<div class="error">No analysis found.</div>`;
-} else {
-  const data = JSON.parse(rawData);
-  const parsed = parseAnalysis(data.analysis || "");
-  const score = Math.min(Math.max(data.match_score || 0, 0), 100);
-
-  const radius = 105;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (score / 100) * circumference;
-
-  content.innerHTML = `
-    <div class="score-card">
-      <div class="donut">
-        <svg viewBox="0 0 260 260">
-          <circle class="bg" cx="130" cy="130" r="${radius}" />
-          <circle class="progress" cx="130" cy="130" r="${radius}"
-            stroke-dasharray="${circumference}"
-            stroke-dashoffset="${circumference}" />
-        </svg>
-        <div class="donut-center">${score}%</div>
-      </div>
+  <!-- NAVBAR -->
+  <nav>
+    <div class="nav-container">
+      <div style="color:white;font-weight:600;">Resume Analyzer</div>
+      <ul>
+        <li><a href="home.html">Home</a></li>
+        <li><a href="index2.html">Analyse</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="index.html">Log Out</a></li>
+      </ul>
     </div>
+  </nav>
 
-    <div class="card"><h2>Strengths</h2><ul>${parsed.strengths.map(i=>`<li>${i}</li>`).join("")}</ul></div>
-    <div class="card"><h2>Weaknesses</h2><ul>${parsed.weaknesses.map(i=>`<li>${i}</li>`).join("")}</ul></div>
-    <div class="card"><h2>Improvement Areas</h2><ul>${parsed.improvement_areas.map(i=>`<li>${i}</li>`).join("")}</ul></div>
-    <div class="card"><h2>Actionable Suggestions</h2><ul>${parsed.actionable_suggestions.map(i=>`<li>${i}</li>`).join("")}</ul></div>
-  `;
+  <div class="container">
+    <h1>Your Career Analysis Results</h1>
+    <p class="subtitle">Personalized insights based on your resume</p>
 
-  requestAnimationFrame(() => {
-    document.querySelector(".progress").style.strokeDashoffset = offset;
-  });
-}
+    <div id="content"></div>
 
-function goBack() {
-  window.location.href = "index2.html";
-}
+    <div class="actions">
+      <button onclick="goBack()">Analyze Another Resume</button>
+      <button onclick="downloadPDF()">Download PDF</button>
+    </div>
+  </div>
 
-function clearResult() {
-  localStorage.removeItem("analysisResult");
-  location.reload();
-}
-</script>
+  <!-- ===== FIREBASE LOGIC ===== -->
+  <script type="module">
+    import { auth, db } from "./firebase.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-<!-- PDF -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script>
-function downloadPDF() {
-  const raw = localStorage.getItem("analysisResult");
-  if (!raw) return;
+    const content = document.getElementById("content");
 
-  const data = JSON.parse(raw);
-  const parsed = parseAnalysis(data.analysis || "");
-  const { jsPDF } = window.jspdf;
+    function parseAnalysis(text) {
+      const sections = { strengths: [], weaknesses: [], improvement_areas: [], actionable_suggestions: [] };
+      let current = null;
+      text.split("\n").forEach(line => {
+        line = line.trim();
+        if (/^strengths/i.test(line)) current = "strengths";
+        else if (/^weaknesses/i.test(line)) current = "weaknesses";
+        else if (/^improvement/i.test(line)) current = "improvement_areas";
+        else if (/^actionable/i.test(line)) current = "actionable_suggestions";
+        else if (line.startsWith("-") && current) sections[current].push(line.replace(/^-\s*/, ""));
+      });
+      return sections;
+    }
 
-  const doc = new jsPDF();
-  let y = 15;
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
 
-  doc.setFontSize(18);
-  doc.text("Resume Analysis Report", 14, y);
-  y += 10;
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "index.html";
+        return;
+      }
 
-  const add = (title, items) => {
-    doc.setFontSize(14);
-    doc.text(title, 14, y);
-    y += 6;
-    doc.setFontSize(11);
-    items.forEach(i => {
-      const lines = doc.splitTextToSize("- " + i, 180);
-      doc.text(lines, 18, y);
-      y += lines.length * 6;
+      const docId = getQueryParam("id");
+      if (!docId) {
+        content.innerHTML = `<div class="error">No analysis selected.</div>`;
+        return;
+      }
+
+      try {
+        const docRef = doc(db, "resumeHistory", user.uid, "analyses", docId);
+        const docSnap = await getDoc(docRef);
+
+        if (!docSnap.exists()) {
+          content.innerHTML = `<div class="error">Analysis not found.</div>`;
+          return;
+        }
+
+        const data = docSnap.data();
+        const parsed = parseAnalysis(data.analysis || "");
+        const score = Math.min(Math.max(data.score || 0, 0), 100);
+
+        const radius = 105;
+        const circumference = 2 * Math.PI * radius;
+        const offset = circumference - (score / 100) * circumference;
+
+        content.innerHTML = `
+          <div class="score-card">
+            <div class="donut">
+              <svg viewBox="0 0 260 260">
+                <circle class="bg" cx="130" cy="130" r="${radius}" />
+                <circle class="progress" cx="130" cy="130" r="${radius}"
+                  stroke-dasharray="${circumference}"
+                  stroke-dashoffset="${circumference}" />
+              </svg>
+              <div class="donut-center">${score}%</div>
+            </div>
+          </div>
+
+          <div class="card"><h2>Strengths</h2><ul>${parsed.strengths.map(i=>`<li>${i}</li>`).join("")}</ul></div>
+          <div class="card"><h2>Weaknesses</h2><ul>${parsed.weaknesses.map(i=>`<li>${i}</li>`).join("")}</ul></div>
+          <div class="card"><h2>Improvement Areas</h2><ul>${parsed.improvement_areas.map(i=>`<li>${i}</li>`).join("")}</ul></div>
+          <div class="card"><h2>Actionable Suggestions</h2><ul>${parsed.actionable_suggestions.map(i=>`<li>${i}</li>`).join("")}</ul></div>
+        `;
+
+        requestAnimationFrame(() => {
+          document.querySelector(".progress").style.strokeDashoffset = offset;
+        });
+
+        // Save the latest viewed analysis in localStorage for PDF download
+        localStorage.setItem("analysisResult", JSON.stringify({
+          analysis: data.analysis,
+          score: score
+        }));
+
+      } catch (err) {
+        console.error(err);
+        content.innerHTML = `<div class="error">Failed to load analysis.</div>`;
+      }
     });
-    y += 4;
-  };
 
-  add("Strengths", parsed.strengths);
-  add("Weaknesses", parsed.weaknesses);
-  add("Improvement Areas", parsed.improvement_areas);
-  add("Actionable Suggestions", parsed.actionable_suggestions);
+    function goBack() {
+      window.location.href = "index2.html";
+    }
+  </script>
 
-  doc.save("Resume_Analysis_Report.pdf");
-}
-</script>
+  <!-- ===== PDF DOWNLOAD ===== -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    function parseAnalysis(text) {
+      const sections = { strengths: [], weaknesses: [], improvement_areas: [], actionable_suggestions: [] };
+      let current = null;
+      text.split("\n").forEach(line => {
+        line = line.trim();
+        if (/^strengths/i.test(line)) current = "strengths";
+        else if (/^weaknesses/i.test(line)) current = "weaknesses";
+        else if (/^improvement/i.test(line)) current = "improvement_areas";
+        else if (/^actionable/i.test(line)) current = "actionable_suggestions";
+        else if (line.startsWith("-") && current) sections[current].push(line.replace(/^-\s*/, ""));
+      });
+      return sections;
+    }
+
+    function downloadPDF() {
+      const raw = localStorage.getItem("analysisResult");
+      if (!raw) return;
+
+      const data = JSON.parse(raw);
+      const parsed = parseAnalysis(data.analysis || "");
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      let y = 15;
+
+      doc.setFontSize(18);
+      doc.text("Resume Analysis Report", 14, y);
+      y += 10;
+
+      const add = (title, items) => {
+        doc.setFontSize(14);
+        doc.text(title, 14, y);
+        y += 6;
+        doc.setFontSize(11);
+        items.forEach(i => {
+          const lines = doc.splitTextToSize("- " + i, 180);
+          doc.text(lines, 18, y);
+          y += lines.length * 6;
+        });
+        y += 4;
+      };
+
+      add("Strengths", parsed.strengths);
+      add("Weaknesses", parsed.weaknesses);
+      add("Improvement Areas", parsed.improvement_areas);
+      add("Actionable Suggestions", parsed.actionable_suggestions);
+
+      doc.save("Resume_Analysis_Report.pdf");
+    }
+  </script>
 
 </body>
 </html>
