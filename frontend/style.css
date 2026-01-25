@@ -195,3 +195,15 @@ body{
 .container.active .toggle-right{
     transform: translateX(200%);
 }
+/* Stay logged out - simple text look */
+.guest-btn {
+    all: unset;              /* remove button styles */
+    margin-top: 12px;
+    font-size: 13px;
+    color: #555;
+    cursor: pointer;
+}
+
+.guest-btn:hover {
+    text-decoration: underline;
+}
