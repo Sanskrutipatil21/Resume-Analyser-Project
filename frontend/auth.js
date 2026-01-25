@@ -8,7 +8,9 @@ import {
 
 import { auth } from "./firebase.js";
 
-// -------- SIGN UP --------
+/* =========================
+   SIGN UP
+========================= */
 const signUpForm = document.querySelector(".sign-up form");
 
 if (signUpForm) {
@@ -27,6 +29,10 @@ if (signUpForm) {
     try {
       const userCred = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCred.user, { displayName: name });
+
+      // user is no longer guest
+      localStorage.removeItem("authMode");
+
       window.location.href = "home.html";
     } catch (err) {
       alert(err.message);
@@ -34,7 +40,9 @@ if (signUpForm) {
   });
 }
 
-// -------- SIGN IN --------
+/* =========================
+   SIGN IN
+========================= */
 const loginForm = document.getElementById("loginForm");
 
 if (loginForm) {
@@ -46,6 +54,10 @@ if (loginForm) {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
+
+      // user is no longer guest
+      localStorage.removeItem("authMode");
+
       window.location.href = "home.html";
     } catch (error) {
       alert(error.message);
@@ -53,19 +65,52 @@ if (loginForm) {
   });
 }
 
-// -------- LOGOUT --------
+/* =========================
+   STAY LOGGED OUT (GUEST)
+========================= */
+const guestBtn = document.getElementById("guestBtn");
+
+if (guestBtn) {
+  guestBtn.addEventListener("click", async () => {
+    // force Firebase logout
+    await signOut(auth);
+
+    // enable guest mode
+    localStorage.setItem("authMode", "guest");
+
+    window.location.href = "home.html";
+  });
+}
+
+/* =========================
+   LOGOUT
+========================= */
 window.logoutUser = async () => {
   await signOut(auth);
+  localStorage.clear(); // removes guest mode too
   window.location.href = "index.html";
 };
 
-// -------- USER NAME --------
+/* =========================
+   USER NAME HANDLING
+========================= */
 onAuthStateChanged(auth, (user) => {
   const userNameEl = document.getElementById("userName");
   if (!userNameEl) return;
 
-  userNameEl.innerText = user
-    ? user.displayName || user.email.split("@")[0]
-    : "Guest";
-});
+  const authMode = localStorage.getItem("authMode");
 
+  // Guest mode always wins
+  if (authMode === "guest") {
+    userNameEl.innerText = "Guest";
+    return;
+  }
+
+  // Firebase user
+  if (user) {
+    userNameEl.innerText =
+      user.displayName || user.email.split("@")[0];
+  } else {
+    userNameEl.innerText = "Guest";
+  }
+});
