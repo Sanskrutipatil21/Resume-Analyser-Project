@@ -12,9 +12,9 @@ import {
 // ================= BACKEND URL =================
 // LOCAL:
 // const BACKEND_URL = "http://127.0.0.1:8000/analyze";
-
 // PRODUCTION (Render):
-const BACKEND_URL = "http://127.0.0.1:8000/analyze";
+const BACKEND_URL = "https://resume-analyser-project.onrender.com/analyze";
+
 
 // ================= DOM ELEMENTS =================
 const resumeInput = document.getElementById("resumeUpload");
@@ -126,3 +126,4 @@ analyzeBtn.addEventListener("click", async () => {
     analyzeBtn.innerText = "Analyse Resume";
   }
 });
+
