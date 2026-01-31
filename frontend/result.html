@@ -8,48 +8,116 @@
   <!-- ===== STYLES ===== -->
   <style>
     /* ===== NAV ===== */
-    nav {
-      background: linear-gradient(90deg, #5c6bc0, #512da8, #5c6bc0);
-      padding: 22px 0;
-      margin-top: 10px;
-      border-radius: 40px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    }
-    .nav-container {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 40px;
-    }
-    nav ul {
-      list-style: none;
-      display: flex;
-      margin: 0;
-      padding: 0;
-    }
-    nav ul li {
-      margin: 0 25px;
-    }
-    nav ul li a {
-      text-decoration: none;
-      color: white;
-      font-size: 18px;
-      font-weight: 500;
-      position: relative;
-    }
-    nav ul li a::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: -3px;
-      width: 0%;
-      height: 2px;
-      background: white;
-      transition: width 0.3s ease;
-    }
-    nav ul li a:hover::after {
-      width: 100%;
-    }
+
+
+
+/* ===== Navbar Styling (SAME AS HOME) ===== */
+nav {
+  background: linear-gradient(90deg, #5c6bc0, #512da8, #5c6bc0);
+  padding: 22px 0;
+  margin-top: 10px;
+  border-radius: 40px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* NAV FLEX CONTAINER */
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+}
+
+/* USER PROFILE */
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-name {
+  position: relative;
+  padding-bottom: 5px;
+}
+
+/* USER NAME UNDERLINE */
+.user-name::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 0%;
+  height: 3px;
+  background-color: #ffffff;
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+.nav-user:hover .user-name::after {
+  width: 100%;
+}
+
+/* NAV LINKS */
+nav ul {
+  list-style: none;
+  display: flex;
+  padding: 0;
+  margin: 0;
+}
+
+nav ul li {
+  margin: 0 35px;
+  position: relative;
+}
+
+nav ul li a {
+  text-decoration: none;
+  color: white;
+  font-weight: 500;
+  font-size: 20px;
+  position: relative;
+  padding-bottom: 5px;
+}
+
+nav ul li a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 0%;
+  height: 3px;
+  background-color: #ffffff;
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+nav ul li a:hover::after {
+  width: 100%;
+}
+
+
+
+
+
+
+
+
+
+
 
     /* ===== THEME ===== */
     :root {
@@ -167,6 +235,16 @@
       color: white;
     }
 
+    .btn-primary{  background: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      padding: 12px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s ease;}
+    .btn-primary:hover{   background: var(--primary);
+      color: white;}
+
     .error {
       background: #450a0a;
       color: #fecaca;
@@ -179,17 +257,24 @@
 
 <body>
   <!-- NAVBAR -->
-  <nav>
-    <div class="nav-container">
-      <div style="color:white;font-weight:600;">Resume Analyzer</div>
-      <ul>
-        <li><a href="home.html">Home</a></li>
-        <li><a href="index2.html">Analyse</a></li>
-        <li><a href="contact.html">Contact</a></li>
-        <li><a href="index.html">Log Out</a></li>
-      </ul>
-    </div>
-  </nav>
+
+<nav>
+  <div class="nav-container">
+    <a href="profile.html" class="nav-user">
+      <div class="user-avatar">👤</div>
+      <span id="userName" class="user-name">Guest</span>
+    </a>
+
+    <ul>
+      <li><a href="home.html">Home</a></li>
+      <li><a href="index2.html" class="active">Analyse</a></li>
+      <li><a href="contact.html">Contact Us</a></li>
+      <li><a href="index.html" onclick="logoutUser()">Log Out</a></li>
+    </ul>
+  </div>
+</nav>
+
+
 
   <div class="container">
     <h1>Your Career Analysis Results</h1>
@@ -199,7 +284,8 @@
 
     <div class="actions">
       <button onclick="goBack()">Analyze Another Resume</button>
-      <button onclick="downloadPDF()">Download PDF</button>
+      <button class="btn-primary" onclick="downloadPDF()">Download PDF</button>
+      <button class="btn-primary" onclick="createplan()">Create Plan</button>
     </div>
   </div>
 
@@ -349,6 +435,11 @@
       add("Actionable Suggestions", parsed.actionable_suggestions);
 
       doc.save("Resume_Analysis_Report.pdf");
+    }
+
+    function createplan(){
+      const docId = new URLSearchParams(window.location.search).get('id');
+      window.location.href = `createplan.html${docId ? `?id=${docId}` : ''}`;
     }
   </script>
 
