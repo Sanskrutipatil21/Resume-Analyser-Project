@@ -20,45 +20,106 @@
     }
 
     /* ---------- NAVBAR ---------- */
-    nav {
-      background: linear-gradient(90deg, #5c6bc0, #512da8, #5c6bc0);
-      padding: 18px 40px;
-      border-radius: 40px;
-      margin: 15px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+  
+nav {
+  background: linear-gradient(90deg, #5c6bc0, #512da8, #5c6bc0);
+  padding: 22px 0;
+  margin-top: 10px;
+  border-radius: 40px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
 
-    nav ul {
-      list-style: none;
-      display: flex;
-      gap: 30px;
-      margin: 0;
-      padding: 0;
-    }
+/* NAV FLEX CONTAINER */
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+}
 
-    nav ul li a {
-      color: white;
-      text-decoration: none;
-      font-size: 18px;
-      position: relative;
-    }
+/* USER PROFILE */
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 6px;
+}
 
-    nav ul li a::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: -5px;
-      width: 0%;
-      height: 3px;
-      background: white;
-      transition: width 0.3s ease;
-    }
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-    nav ul li a:hover::after {
-      width: 100%;
-    }
+.user-name {
+  position: relative;
+  padding-bottom: 5px;
+}
+
+/* USER NAME UNDERLINE */
+.user-name::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 0%;
+  height: 3px;
+  background-color: #ffffff;
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+.nav-user:hover .user-name::after {
+  width: 100%;
+}
+
+/* NAV LINKS */
+nav ul {
+  list-style: none;
+  display: flex;
+  padding: 0;
+  margin: 0;
+}
+
+nav ul li {
+  margin: 0 35px;
+  position: relative;
+}
+
+nav ul li a {
+  text-decoration: none;
+  color: white;
+  font-weight: 500;
+  font-size: 20px;
+  position: relative;
+  padding-bottom: 5px;
+}
+
+nav ul li a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 0%;
+  height: 3px;
+  background-color: #ffffff;
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+nav ul li a:hover::after {
+  width: 100%;
+}
+
+
+
 
     /* ---------- PROFILE HEADER ---------- */
     .profile-header {
@@ -77,9 +138,6 @@
       font-size: 60px;
       margin: auto;
       box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    }
-
-    .profile-name {
       margin-top: 15px;
       font-size: 26px;
       font-weight: 600;
@@ -127,24 +185,32 @@
       font-weight: bold;
       color: #71629e;
     }
+    .profile-name{
+      margin-top: 15px;
+      font-size: 26px;
+      font-weight: 600;
+    }
   </style>
 </head>
 
 <body>
 
   <!-- NAVBAR -->
-  <nav>
-    <div style="color:white;font-size:20px;font-weight:600;">
-      Resume Analyzer
-    </div>
+<nav>
+  <div class="nav-container">
+    <a href="profile.html" class="nav-user">
+      <div class="user-avatar">👤</div>
+      <span id="userName" class="user-name">Guest</span>
+    </a>
 
     <ul>
       <li><a href="home.html">Home</a></li>
-      <li><a href="index2.html">Analyse</a></li>
+      <li><a href="index2.html" class="active">Analyse</a></li>
       <li><a href="contact.html">Contact Us</a></li>
-      <li><a href="index.html">Log Out</a></li>
+      <li><a href="index.html" onclick="logoutUser()">Log Out</a></li>
     </ul>
-  </nav>
+  </div>
+</nav>
 
   <!-- PROFILE HEADER -->
   <div class="profile-header">
