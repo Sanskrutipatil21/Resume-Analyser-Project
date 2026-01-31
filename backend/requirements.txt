@@ -6,3 +6,4 @@ pypdf
 python-multipart
 python-docx
 groq
+openai
