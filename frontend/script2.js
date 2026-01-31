@@ -12,9 +12,9 @@ import {
 // ================= BACKEND URL =================
 // LOCAL:
 // const BACKEND_URL = "http://127.0.0.1:8000/analyze";
+
 // PRODUCTION (Render):
 const BACKEND_URL = "https://resume-analyser-project.onrender.com/analyze";
-
 
 // ================= DOM ELEMENTS =================
 const resumeInput = document.getElementById("resumeUpload");
@@ -87,6 +87,7 @@ analyzeBtn.addEventListener("click", async () => {
   formData.append("description", descriptionInput.value.trim());
 
   try {
+    // ---------- CALL BACKEND ----------
     const response = await fetch(BACKEND_URL, {
       method: "POST",
       body: formData
@@ -98,8 +99,8 @@ analyzeBtn.addEventListener("click", async () => {
       throw new Error(result.error || "Resume analysis failed");
     }
 
-    // ---------- SAVE TO FIRESTORE ----------
-    await addDoc(
+    // ---------- SAVE TO FIRESTORE (IMPORTANT FIX) ----------
+    const docRef = await addDoc(
       collection(db, "resumeHistory", currentUser.uid, "analyses"),
       {
         company: result.company,
@@ -111,11 +112,11 @@ analyzeBtn.addEventListener("click", async () => {
       }
     );
 
-    // ---------- STORE RESULT ----------
+    // ---------- OPTIONAL LOCAL STORAGE (PDF USE) ----------
     localStorage.setItem("analysisResult", JSON.stringify(result));
 
-    // ---------- REDIRECT ----------
-    window.location.href = "result.html";
+    // ---------- REDIRECT WITH DOC ID (🔥 FIX 🔥) ----------
+    window.location.href = `result.html?id=${docRef.id}`;
 
   } catch (error) {
     console.error("Analyze Error:", error);
@@ -126,4 +127,3 @@ analyzeBtn.addEventListener("click", async () => {
     analyzeBtn.innerText = "Analyse Resume";
   }
 });
-
