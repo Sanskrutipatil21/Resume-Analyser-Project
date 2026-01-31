@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your AI Study Plan</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+   :root {
+      --primary: #6366f1;
+      --bg: #eae5f9;
+      --card: #0f172a;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+    }
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html{overflow-x:hidden;width:100%;max-width:100%;}
+
+
+
+@keyframes gradientShift{
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:linear-gradient(
+    180deg,
+    rgba(255,255,255,0.95),
+    rgba(255,255,255,0.85)
+  );
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ===== PAGE WRAPPER ===== */
+.wrapper{
+  width:100%;
+  margin:60px auto 100px;
+  padding:0 20px;
+  position:relative;
+  z-index:1;
+}
+
+/* ===== HEADER ===== */
+.header{
+  text-align:center;
+  margin-bottom:60px;
+  animation:slideInDown 0.8s ease;
+}
+
+@keyframes slideInDown{
+  from{opacity:0;transform:translateY(-30px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.header h1{
+    font-family: 'Inter', sans-serif; /* match previous pages */
+
+}
+
+.header p{
+  color:#555;
+      font-family: 'Inter', sans-serif; /* match previous pages */
+
+  font-size:1.1rem;
+  margin-top:10px;
+}
+
+/* ===== PLAN CONTAINER ===== */
+.plan-container{
+  max-width:1200px;
+  margin:auto;
+}
+
+.plan-container h2{
+      font-family: 'Inter', sans-serif; /* match previous pages */
+
+  text-align:center;
+  margin-bottom:50px;
+  font-size:clamp(1.8rem,4vw,2.4rem);
+  color: #333; /* normal text color */
+}
+
+/* ===== PLAN CONTENT ===== */
+.plan-content{
+  display:flex;
+  flex-direction:column;
+  gap:25px;
+}
+
+/* ===== PLAN CARD ===== */
+.plan-card{
+  background:rgba(255,255,255,0.95);
+  border-radius:24px;
+  padding:30px;
+  box-shadow:0 20px 60px rgba(102,126,234,0.15);
+  border-left:5px solid #667eea;
+  cursor:pointer;
+  animation:slideUp 0.6s ease backwards;
+
+}
+
+@keyframes slideUp{
+  from{opacity:0;transform:translateY(30px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.plan-card-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+}
+
+.plan-card-title strong{
+  font-size:1.15rem;
+  color:#667eea;
+
+}
+
+.plan-card-icon{
+  font-size:1.4rem;
+  transition:transform 0.3s ease;
+}
+
+.plan-card.expanded .plan-card-icon{
+  transform:rotate(180deg);
+}
+
+.plan-card-content{
+  display:none;
+  margin-top:25px;
+  padding-top:20px;
+  border-top:1px solid rgba(0,0,0,0.1);
+
+}
+
+.plan-card.expanded .plan-card-content{
+  display:block;
+}
+
+.plan-card-content p{
+  color:#666;
+  line-height:1.8;
+  margin-bottom:12px;
+
+}
+
+/* ===== LOADING ===== */
+.loading{
+  text-align:center;
+  padding:80px 20px;
+}
+
+.spinner{
+  width:60px;
+  height:60px;
+  border:6px solid rgba(102,126,234,0.2);
+  border-top-color:#667eea;
+  border-radius:50%;
+  animation:spin 1.2s linear infinite;
+  margin:auto;
+}
+
+@keyframes spin{
+  to{transform:rotate(360deg)}
+}
+
+.loading p{
+  margin-top:20px;
+  color:#667eea;
+  font-weight:600;
+}
+
+/* ===== ACTION BUTTONS ===== */
+.action-buttons{
+  display:flex;
+  gap:20px;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin-top:50px;
+}
+
+button{
+  padding:16px 40px;
+  border:none;
+  border-radius:18px;
+  font-weight:700;
+  cursor:pointer;
+  font-size:1rem;
+}
+
+.btn-primary{
+ background: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      padding: 12px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s ease;
+}
+ .btn-primary:hover{   background: var(--primary);
+      color: white;}
+.btn-secondary{
+ background: transparent;
+      border: 2px solid #667eea;
+      color: var(--primary);
+      padding: 12px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s ease;
+}
+ .btn-secondary:hover{   background: var(--primary);
+      color: white;}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+  .action-buttons{flex-direction:column}
+  button{width:100%}
+}
+/* ===== Navbar Styling (SAME AS HOME) ===== */
+nav {
+  background: linear-gradient(90deg, #5c6bc0, #512da8, #5c6bc0);
+  padding: 22px 0;
+  margin-top: 10px;
+  border-radius: 40px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    font-family: 'Inter', sans-serif; /* match previous pages */
+
+}
+
+/* NAV FLEX CONTAINER */
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+}
+
+/* USER PROFILE */
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-name {
+  position: relative;
+  padding-bottom: 5px;
+}
+
+/* USER NAME UNDERLINE */
+.user-name::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 0%;
+  height: 3px;
+  background-color: #ffffff;
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+.nav-user:hover .user-name::after {
+  width: 100%;
+}
+
+/* NAV LINKS */
+nav ul {
+  list-style: none;
+  display: flex;
+  padding: 0;
+  margin: 0;
+}
+
+nav ul li {
+  margin: 0 35px;
+  position: relative;
+}
+
+nav ul li a {
+  text-decoration: none;
+  color: white;
+  font-weight: 500;
+  font-size: 20px;
+  position: relative;
+  padding-bottom: 5px;
+}
+
+nav ul li a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 0%;
+  height: 3px;
+  background-color: #ffffff;
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+nav ul li a:hover::after {
+  width: 100%;
+}
+nav{
+  position: relative;
+  z-index: 10;
+}
+
+@media(max-width: 900px){
+  .nav-container{
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  nav ul{
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  nav ul li{
+    margin: 10px 16px;
+  }
+}
+
+
+
+.plan-card, 
+.plan-card-title, 
+.plan-card-content, 
+.plan-card-content p {
+  font-family: 'Inter', sans-serif;  /* ensures same font style */
+
+}
+
+
+
+
+
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+
+
+
+
+
+
+
+<nav>
+  <div class="nav-container">
+    <a href="profile.html" class="nav-user">
+      <div class="user-avatar">👤</div>
+      <span id="userName" class="user-name">Guest</span>
+    </a>
+
+    <ul>
+      <li><a href="home.html">Home</a></li>
+      <li><a href="index2.html" class="active">Analyse</a></li>
+      <li><a href="contact.html">Contact Us</a></li>
+      <li><a href="index.html" onclick="logoutUser()">Log Out</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+
+
+
+
+
+
+
+
+
+<div class="wrapper">
+  <div class="header">
+    <h1>Your AI Study Plan</h1>
+    <p>Personalized roadmap to achieve your career goals</p>
+  </div>
+
+  <div class="plan-container">
+    <h2 id="planTitle">Generating Your Study Plan...</h2>
+    <div id="planContent" class="plan-content">
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>AI is creating your personalized study plan...</p>
+      </div>
+    </div>
+    
+    <div class="action-buttons">
+      <button class="btn-primary" onclick="downloadPlan()"> Download Plan</button>
+      <button class="btn-secondary" onclick="goBack()"> Back to Form</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function logoutUser(){
+  // Logout logic here
+}
+
+function retrievePlanData() {
+  const rawPlan = sessionStorage.getItem('studyPlanData');
+  const planContent = document.getElementById('planContent');
+  const planTitle = document.getElementById('planTitle');
+
+  // Conservative sanitization: remove lines that clearly echo user input labels
+  const forbiddenPhrases = [
+    'daily study hours','daily hours','daily','timeline','duration','target role','target company',
+    'current skill level','skill level','skills to improve','skills','learning style','study preference',
+    'biggest challenge','resume analysis','input summary','your details','your information'
+  ];
+
+  // Clean the raw plan
+  const cleanedLines = (rawPlan || '').split('\n')
+    .map(l => l.trim())
+    .filter(Boolean)
+    .filter(line => {
+      const lower = line.toLowerCase();
+      for (const p of forbiddenPhrases) {
+        if (lower.startsWith(p) || lower.includes(p + ':') || lower.includes(p + ' -')) return false;
+      }
+      if (/^(duration|daily|current skill level|skill|skills|learning|study|biggest|timeline)\b/i.test(lower) && /[:\-–—]/.test(line)) return false;
+      if (line.length < 60 && /\b(duration|daily|timeline|skill|skills|learning|study|biggest)\b/i.test(lower)) return false;
+      return true;
+    });
+
+  const planData = cleanedLines.join('\n');
+
+  if (planData) {
+    planContent.innerHTML = '';
+    const lines = planData.split('\n');
+    let currentSection = null;
+    let sectionDetails = [];
+
+    lines.forEach(line => {
+      const trimmed = line.trim();
+      if (!trimmed) return;
+
+      // Detect section header (Week, Month, Step, Phase)
+      if (/^(\*\*)?([Ww]eek|[Mm]onth|[Ss]tep|[Pp]hase|[Dd]ay)\s+\d+/.test(trimmed)) {
+        if (currentSection) addCardToDOM(currentSection, sectionDetails, planContent);
+        currentSection = trimmed.replace(/\*\*/g, '');
+        sectionDetails = [];
+      } else if (currentSection) {
+        sectionDetails.push(trimmed);
+      } else {
+        addStandaloneCard(trimmed, planContent);
+      }
+    });
+
+    if (currentSection) addCardToDOM(currentSection, sectionDetails, planContent);
+
+    // Add click handlers for expandable cards
+    document.querySelectorAll('.plan-card').forEach(card => {
+      card.addEventListener('click', function() {
+        this.classList.toggle('expanded');
+      });
+    });
+
+    // Normalize month ranges like "Month 3-6"
+    (function normalizeMonthBlocks() {
+      const cards = Array.from(document.querySelectorAll('.plan-card'));
+
+      for (const card of cards) {
+        const titleEl = card.querySelector('.plan-card-title');
+        if (!titleEl) continue;
+
+        const titleText = titleEl.textContent.trim();
+        const rangeMatch = titleText.match(/month\s*(\d+)\s*[-–—]\s*(\d+)/i);
+        if (rangeMatch) {
+          const startMonth = parseInt(rangeMatch[1], 10);
+          const endMonth = parseInt(rangeMatch[2], 10);
+          const totalMonths = endMonth - startMonth + 1;
+
+          const details = Array.from(card.querySelectorAll('.plan-card-content p'))
+                                .map(p => p.textContent.trim())
+                                .filter(Boolean);
+
+          const chunkSize = Math.ceil(details.length / totalMonths);
+          const parent = card.parentElement;
+          const insertIndex = Array.from(parent.children).indexOf(card);
+
+          parent.removeChild(card);
+
+          for (let i = 0; i < totalMonths; i++) {
+            const chunk = details.slice(i * chunkSize, (i + 1) * chunkSize);
+            const monthTitle = `Month ${startMonth + i}`;
+
+            const newCard = document.createElement('div');
+            newCard.className = 'plan-card';
+
+            const header = document.createElement('div');
+            header.className = 'plan-card-header';
+
+            const titleElNew = document.createElement('div');
+            titleElNew.className = 'plan-card-title';
+            titleElNew.innerHTML = `<strong style="color:#667eea;font-size:1.15rem;line-height:1.4;">${monthTitle}</strong>`;
+
+            const icon = document.createElement('div');
+            icon.className = 'plan-card-icon';
+            icon.textContent = '▼';
+
+            header.appendChild(titleElNew);
+            header.appendChild(icon);
+
+            const content = document.createElement('div');
+            content.className = 'plan-card-content';
+
+            (chunk.length ? chunk : ['(Content continued)']).forEach(line => {
+              const p = document.createElement('p');
+              p.textContent = line;
+              content.appendChild(p);
+            });
+
+            newCard.appendChild(header);
+            newCard.appendChild(content);
+
+            if (insertIndex + i >= parent.children.length) parent.appendChild(newCard);
+            else parent.insertBefore(newCard, parent.children[insertIndex + i]);
+
+            newCard.addEventListener('click', function() {
+              this.classList.toggle('expanded');
+            });
+          }
+        }
+      }
+    })();
+
+    planTitle.textContent = 'Your Personalized Study Plan';
+  } else {
+    planContent.innerHTML = '<div class="plan-card" style="grid-column:1/-1;text-align:center;"><p style="color:#999;">No study plan found. <a href="createplan.html">Create one now</a></p></div>';
+  }
+}
+
+
+function addCardToDOM(title, details, container) {
+  const card = document.createElement('div');
+  card.className = 'plan-card';
+
+  // Header
+  const header = document.createElement('div');
+  header.className = 'plan-card-header';
+
+  const titleEl = document.createElement('div');
+  titleEl.className = 'plan-card-title';
+  titleEl.innerHTML = `<strong style="color:#667eea;font-size:1.15rem;line-height:1.4;">${title}</strong>`;
+
+  const icon = document.createElement('div');
+  icon.className = 'plan-card-icon';
+  icon.innerHTML = '<i class="fas fa-chevron-down"></i>';
+
+  header.appendChild(titleEl);
+  header.appendChild(icon);
+
+  // Content
+  const content = document.createElement('div');
+  content.className = 'plan-card-content';
+
+  details.forEach(detail => {
+    const p = document.createElement('p');
+
+    // Replace symbols with Font Awesome icons
+    let lineText = detail
+      .replace(/^\*\s/, '<i class="fas fa-bullseye" style="color:#667eea;"></i> ') // * → 🎯
+      .replace(/^\-\s/, '<i class="fas fa-thumbtack" style="color:#667eea;"></i> ') // - → 📌
+      .replace(/^\+\s/, '<i class="fas fa-users" style="color:#667eea;"></i> '); // + → 👥
+
+    // Keep bold formatting
+    lineText = lineText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+    p.innerHTML = lineText;
+    p.style.fontFamily = 'Inter, sans-serif'; // ensure consistent font
+    content.appendChild(p);
+  });
+
+  card.appendChild(header);
+  card.appendChild(content);
+  container.appendChild(card);
+}
+
+
+
+function addStandaloneCard(text, container){
+  const card = document.createElement('div');
+  card.className = 'plan-card expanded';
+  
+  const p = document.createElement('p');
+  p.innerHTML = text.replace(/\*\*/g, '<strong>').replace(/\*\*/g, '</strong>');
+  
+  card.appendChild(p);
+  container.appendChild(card);
+}
+
+function downloadPlan(){
+  const planData = sessionStorage.getItem('studyPlanData');
+  if(!planData){
+    alert('No plan to download');
+    return;
+  }
+  
+  const element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(planData));
+  element.setAttribute('download', 'Study_Plan.txt');
+  element.style.display = 'none';
+  document.body.appendChild(element);
+  element.click();
+  document.body.removeChild(element);
+}
+
+function goBack(){
+  window.location.href = 'createplan.html';
+}
+
+// Load plan when page loads
+window.addEventListener('load', retrievePlanData);
+</script>
+<script type="module" src="auth.js"></script>
+<script type="module" src="profile.js"></script>
+</body>
+</html>
