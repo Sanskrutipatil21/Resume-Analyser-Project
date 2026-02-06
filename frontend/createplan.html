@@ -10,7 +10,6 @@
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Inter,sans-serif;background:linear-gradient(135deg,#eef0ff,#f7f8ff);color:#222;}
-nav{background:linear-gradient(90deg,#5c6bc0,#512da8);padding:20px 40px;color:white;border-radius:0 0 20px 20px;}
 .wrapper{max-width:900px;margin:50px auto 80px;padding:0 20px;}
 .header{text-align:center;margin-bottom:40px;}
 .header h1{font-size:2.6rem;color:#512da8;}
@@ -29,7 +28,6 @@ input,textarea{width:100%;padding:16px;border-radius:14px;border:1px solid rgba(
 textarea{resize:none;min-height:90px;}
 .options{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;}
 .option{padding:16px;text-align:center;border-radius:16px;background:rgba(255,255,255,0.7);cursor:pointer;font-weight:500;border:1px solid rgba(0,0,0,0.1);transition:0.25s;}
-.option:hover{transform:translateY(-3px)}
 .option.active{background:linear-gradient(135deg,#5c6bc0,#512da8);color:white;} 
 .actions{display:flex;justify-content:space-between;margin-top:35px;}
 button{padding:14px 32px;border:none;border-radius:16px;font-weight:600;cursor:pointer;}
@@ -51,85 +49,179 @@ button{padding:14px 32px;border:none;border-radius:16px;font-weight:600;cursor:p
       <div class="progress" id="progress"></div>
     </div>
 
-    <!-- steps unchanged (UI only) -->
-    <!-- ... UI CONTENT SAME AS YOUR FILE ... -->
+    <!-- STEP 1 -->
+    <div class="step active" data-step="1">
+      <h2>Career Goal</h2>
+      <p>What role are you aiming for?</p>
+      <div class="field">
+        <label>Target Role</label>
+        <input id="targetRole" placeholder="e.g. Software Engineer">
+      </div>
+      <div class="field">
+        <label>Target Company</label>
+        <input id="targetCompany" placeholder="e.g. Google">
+      </div>
+      <div class="actions">
+        <span></span>
+        <button class="next">Next</button>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step" data-step="2">
+      <h2>Timeline & Time</h2>
+      <p>How much time can you invest?</p>
+
+      <label>Timeline</label>
+      <div class="options" data-field="timeline">
+        <div class="option">1 Month</div>
+        <div class="option">3 Months</div>
+        <div class="option">6 Months</div>
+      </div>
+
+      <label>Daily Study Hours</label>
+      <div class="options" data-field="dailyHours">
+        <div class="option">1–2 hrs</div>
+        <div class="option">3–4 hrs</div>
+        <div class="option">5+ hrs</div>
+      </div>
+
+      <div class="actions">
+        <button class="back">Back</button>
+        <button class="next">Next</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step" data-step="3">
+      <h2>Skills</h2>
+      <p>Your current level & focus areas</p>
+
+      <label>Skill Level</label>
+      <div class="options">
+        <div class="option">Beginner</div>
+        <div class="option">Intermediate</div>
+        <div class="option">Advanced</div>
+      </div>
+
+      <label>Skills to Improve</label>
+      <textarea placeholder="DSA, System Design, Projects..."></textarea>
+
+      <div class="actions">
+        <button class="back">Back</button>
+        <button class="next">Next</button>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step" data-step="4">
+      <h2>Learning Style</h2>
+      <p>How do you learn best?</p>
+
+      <div class="options">
+        <div class="option">Videos</div>
+        <div class="option">Reading</div>
+        <div class="option">Practice</div>
+      </div>
+
+      <div class="options">
+        <div class="option">Solo</div>
+        <div class="option">Guided</div>
+      </div>
+
+      <div class="actions">
+        <button class="back">Back</button>
+        <button class="next">Next</button>
+      </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="step" data-step="5">
+      <h2>Final Details</h2>
+
+      <label>Biggest Challenge</label>
+      <textarea placeholder="Consistency, DSA, Interviews..."></textarea>
+
+      <label>Plan Format</label>
+      <div class="options">
+        <div class="option">Daily</div>
+        <div class="option">Weekly</div>
+      </div>
+
+      <div class="actions">
+        <button class="back">Back</button>
+        <button class="next">Generate Plan</button>
+      </div>
+    </div>
 
   </div>
 </div>
 
 <script>
-/* ================= FIX STARTS HERE ================= */
-
-// ✅ PRODUCTION BACKEND URL
 const API_BASE_URL = "https://resume-analyser-project.onrender.com";
 
 const steps = document.querySelectorAll('.step');
 const progress = document.getElementById('progress');
 let current = 0;
-
 let resumeAnalysis = '';
+
 const urlParams = new URLSearchParams(window.location.search);
 const docId = urlParams.get('id');
 
-// ✅ FIXED: resume analysis fetch
-if(docId){
+if (docId) {
   fetch(`${API_BASE_URL}/resume-analysis?id=${docId}`)
     .then(res => res.json())
-    .then(data => {
-      resumeAnalysis = data.analysis || '';
-      console.log("Resume analysis loaded");
-    })
-    .catch(err => console.error("Resume analysis fetch failed", err));
+    .then(data => resumeAnalysis = data.analysis || '');
 }
 
-function collectUserInfo(){
-  return {
-    resumeAnalysis,
-    targetRole: document.getElementById('targetRole').value,
-    targetCompany: document.getElementById('targetCompany').value,
-    timeline: document.querySelector('[data-field="timeline"] .option.active')?.textContent || '',
-    dailyHours: document.querySelector('[data-field="dailyHours"] .option.active')?.textContent || '',
-    skillLevel: document.querySelectorAll('.step[data-step="3"] .option.active')[0]?.textContent || '',
-    skillsToImprove: document.querySelector('.step[data-step="3"] textarea')?.value || '',
-    learningStyle: document.querySelectorAll('.step[data-step="4"] .option.active')[0]?.textContent || '',
-    studyPreference: document.querySelectorAll('.step[data-step="4"] .option.active')[1]?.textContent || '',
-    biggestChallenge: document.querySelector('.step[data-step="5"] textarea')?.value || '',
-    planFormat: document.querySelectorAll('.step[data-step="5"] .option.active')[0]?.textContent || ''
-  };
-}
-
-// ✅ FIXED: study plan API call
-async function sendToBackend(userInfo){
-  try{
-    const res = await fetch(`${API_BASE_URL}/study-plan`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(userInfo)
-    });
-
-    const data = await res.json();
-
-    if(data.study_plan){
-      sessionStorage.setItem('studyPlanData', data.study_plan);
-      window.location.href = 'study-plan-result.html';
-    } else {
-      alert('Could not generate plan.');
-    }
-  } catch(err){
-    alert('Backend error. Try again.');
-    console.error(err);
+document.querySelectorAll('.option').forEach(opt=>{
+  opt.onclick = () => {
+    opt.parentElement.querySelectorAll('.option').forEach(o=>o.classList.remove('active'));
+    opt.classList.add('active');
   }
-}
+});
 
-document.querySelector('.step:last-child .next').onclick = async ()=>{
-  const userInfo = collectUserInfo();
-  await sendToBackend(userInfo);
-};
+document.querySelectorAll('.next').forEach(btn=>{
+  btn.onclick = async () => {
+    if (current < steps.length - 1) {
+      steps[current].classList.remove('active');
+      current++;
+      steps[current].classList.add('active');
+      progress.style.width = `${((current+1)/steps.length)*100}%`;
+    } else {
+      const data = {
+        resumeAnalysis,
+        targetRole: targetRole.value,
+        targetCompany: targetCompany.value,
+        timeline: document.querySelector('[data-field="timeline"] .active')?.textContent,
+        dailyHours: document.querySelector('[data-field="dailyHours"] .active')?.textContent
+      };
 
-/* ================= FIX ENDS HERE ================= */
+      const res = await fetch(`${API_BASE_URL}/study-plan`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(data)
+      });
+
+      const out = await res.json();
+      sessionStorage.setItem("studyPlanData", out.study_plan);
+      window.location.href = "study-plan-result.html";
+    }
+  }
+});
+
+document.querySelectorAll('.back').forEach(btn=>{
+  btn.onclick = () => {
+    steps[current].classList.remove('active');
+    current--;
+    steps[current].classList.add('active');
+    progress.style.width = `${((current+1)/steps.length)*100}%`;
+  }
+});
 </script>
 
 <script type="module" src="auth.js"></script>
 <script type="module" src="profile.js"></script>
+
 </body>
 </html>
