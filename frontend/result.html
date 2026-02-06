@@ -22,16 +22,14 @@ body {
 }
 
 /* ===== NAVBAR ===== */
- 
 nav {
   background: linear-gradient(90deg, #5c6bc0, #512da8, #5c6bc0);
   padding: 22px 0;
   margin-top: 10px;
   border-radius: 40px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
-/* NAV FLEX CONTAINER */
 .nav-container {
   display: flex;
   align-items: center;
@@ -39,69 +37,37 @@ nav {
   padding: 0 40px;
 }
 
-/* USER PROFILE */
 .nav-user {
   display: flex;
   align-items: center;
   gap: 10px;
   color: white;
-  font-size: 16px;
-  cursor: pointer;
-  margin-top: 6px;
+  text-decoration: none;
 }
 
 .user-avatar {
   width: 36px;
   height: 36px;
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255,255,255,0.25);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.user-name {
-  position: relative;
-  padding-bottom: 5px;
-}
-
-/* USER NAME UNDERLINE */
-.user-name::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -5px;
-  width: 0%;
-  height: 3px;
-  background-color: #ffffff;
-  transition: width 0.3s ease;
-  border-radius: 4px;
-}
-
-.nav-user:hover .user-name::after {
-  width: 100%;
-}
-
-/* NAV LINKS */
 nav ul {
   list-style: none;
   display: flex;
-  padding: 0;
+  gap: 35px;
   margin: 0;
-}
-
-nav ul li {
-  margin: 0 35px;
-  position: relative;
+  padding: 0;
 }
 
 nav ul li a {
-  text-decoration: none;
   color: white;
-  font-weight: 500;
-  font-size: 20px;
+  text-decoration: none;
+  font-size: 18px;
   position: relative;
-  padding-bottom: 5px;
 }
 
 nav ul li a::after {
@@ -111,14 +77,14 @@ nav ul li a::after {
   bottom: -5px;
   width: 0%;
   height: 3px;
-  background-color: #ffffff;
-  transition: width 0.3s ease;
-  border-radius: 4px;
+  background: white;
+  transition: 0.3s;
 }
 
 nav ul li a:hover::after {
   width: 100%;
 }
+
 /* ===== CONTENT ===== */
 .container {
   max-width: 900px;
@@ -152,9 +118,19 @@ h1 {
   position: relative;
 }
 
-.donut svg { transform: rotate(-90deg); }
-.donut circle { fill: none; stroke-width: 26; }
-.bg { stroke: #1e293b; }
+.donut svg {
+  transform: rotate(-90deg);
+}
+
+.donut circle {
+  fill: none;
+  stroke-width: 26;
+}
+
+.bg {
+  stroke: #1e293b;
+}
+
 .progress {
   stroke: var(--primary);
   stroke-linecap: round;
@@ -180,8 +156,13 @@ h1 {
   color: var(--text);
 }
 
-.card ul { padding-left: 20px; }
-.card li { margin-bottom: 8px; }
+.card ul {
+  padding-left: 20px;
+}
+
+.card li {
+  margin-bottom: 10px;
+}
 
 /* ===== ACTIONS ===== */
 .actions {
@@ -251,7 +232,7 @@ import { auth, db } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-/* ✅ FIXED PARSER */
+/* ✅ FINAL ROBUST PARSER */
 function parseAnalysis(text) {
   const sections = {
     strengths: [],
@@ -270,12 +251,21 @@ function parseAnalysis(text) {
     else if (/^weaknesses/i.test(line)) current = "weaknesses";
     else if (/^improvement/i.test(line)) current = "improvement_areas";
     else if (/^actionable/i.test(line)) current = "actionable_suggestions";
-    else if (current) {
-      sections[current].push(line.replace(/^-\s*/, ""));
-    }
+    else if (current) sections[current].push(line);
   });
 
   return sections;
+}
+
+function card(title, items) {
+  if (!items.length) {
+    return `<div class="card"><h2>${title}</h2><p>No data available</p></div>`;
+  }
+  return `
+    <div class="card">
+      <h2>${title}</h2>
+      <ul>${items.map(i => `<li>${i}</li>`).join("")}</ul>
+    </div>`;
 }
 
 onAuthStateChanged(auth, async (user) => {
@@ -321,10 +311,10 @@ onAuthStateChanged(auth, async (user) => {
       </div>
     </div>
 
-    ${makeCard("Strengths", parsed.strengths)}
-    ${makeCard("Weaknesses", parsed.weaknesses)}
-    ${makeCard("Improvement Areas", parsed.improvement_areas)}
-    ${makeCard("Actionable Suggestions", parsed.actionable_suggestions)}
+    ${card("Strengths", parsed.strengths)}
+    ${card("Weaknesses", parsed.weaknesses)}
+    ${card("Improvement Areas", parsed.improvement_areas)}
+    ${card("Actionable Suggestions", parsed.actionable_suggestions)}
   `;
 
   requestAnimationFrame(() => {
@@ -333,11 +323,6 @@ onAuthStateChanged(auth, async (user) => {
 
   localStorage.setItem("analysisResult", JSON.stringify(data));
 });
-
-function makeCard(title, items) {
-  if (!items.length) return "";
-  return `<div class="card"><h2>${title}</h2><ul>${items.map(i => `<li>${i}</li>`).join("")}</ul></div>`;
-}
 
 function goBack() {
   window.location.href = "index2.html";
@@ -349,10 +334,7 @@ function createPlan() {
 }
 </script>
 
-
-
 <script type="module" src="profile.js"></script>
 <script type="module" src="auth.js"></script>
 </body>
 </html>
-
