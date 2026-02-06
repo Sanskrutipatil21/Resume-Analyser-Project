@@ -2,40 +2,222 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
+<title>Resume Analysis Result</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>AI Study Plan Builder</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Inter,sans-serif;background:linear-gradient(135deg,#eef0ff,#f7f8ff);color:#222}
-nav{background:linear-gradient(90deg,#5c6bc0,#512da8,#5c6bc0);padding:22px 0;margin-top:10px;border-radius:40px;box-shadow:0 4px 10px rgba(0,0,0,.3)}
-.nav-container{display:flex;align-items:center;justify-content:space-between;padding:0 40px}
-.nav-user{display:flex;align-items:center;gap:10px;color:white;text-decoration:none}
-.user-avatar{width:36px;height:36px;background:rgba(255,255,255,.25);border-radius:50%;display:flex;align-items:center;justify-content:center}
-nav ul{list-style:none;display:flex;margin:0;padding:0}
-nav ul li{margin:0 35px}
-nav ul li a{color:white;text-decoration:none;font-size:20px}
+:root {
+  --primary: #6366f1;
+  --bg: #eae5f9;
+  --card: #0f172a;
+  --text: #e5e7eb;
+  --muted: #94a3b8;
+}
 
-.wrapper{max-width:900px;margin:60px auto;padding:0 20px}
-.card{background:rgba(255,255,255,.6);backdrop-filter:blur(18px);border-radius:28px;padding:45px;box-shadow:0 25px 50px rgba(0,0,0,.12)}
-.progress-bar{height:10px;background:#ddd;border-radius:99px;margin-bottom:30px;overflow:hidden}
-.progress{height:100%;width:20%;background:linear-gradient(90deg,#5c6bc0,#512da8);transition:.4s}
-.step{display:none}
-.step.active{display:block}
-.options{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px}
-.option{padding:16px;text-align:center;border-radius:16px;background:white;cursor:pointer;border:1px solid #ccc}
-.option.active{background:linear-gradient(135deg,#5c6bc0,#512da8);color:white}
-.actions{display:flex;justify-content:space-between;margin-top:30px}
-button{padding:14px 30px;border-radius:16px;border:none;cursor:pointer;font-weight:600}
-.next{background:linear-gradient(135deg,#5c6bc0,#512da8);color:white}
-.back{background:transparent;border:1px solid #aaa}
+body {
+  margin: 0;
+  background: var(--bg);
+  padding: 20px;
+  font-family: system-ui, sans-serif;
+}
+
+/* ===== NAVBAR ===== */
+ 
+nav {
+  background: linear-gradient(90deg, #5c6bc0, #512da8, #5c6bc0);
+  padding: 22px 0;
+  margin-top: 10px;
+  border-radius: 40px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* NAV FLEX CONTAINER */
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+}
+
+/* USER PROFILE */
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-name {
+  position: relative;
+  padding-bottom: 5px;
+}
+
+/* USER NAME UNDERLINE */
+.user-name::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 0%;
+  height: 3px;
+  background-color: #ffffff;
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+.nav-user:hover .user-name::after {
+  width: 100%;
+}
+
+/* NAV LINKS */
+nav ul {
+  list-style: none;
+  display: flex;
+  padding: 0;
+  margin: 0;
+}
+
+nav ul li {
+  margin: 0 35px;
+  position: relative;
+}
+
+nav ul li a {
+  text-decoration: none;
+  color: white;
+  font-weight: 500;
+  font-size: 20px;
+  position: relative;
+  padding-bottom: 5px;
+}
+
+nav ul li a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 0%;
+  height: 3px;
+  background-color: #ffffff;
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+nav ul li a:hover::after {
+  width: 100%;
+}
+/* ===== CONTENT ===== */
+.container {
+  max-width: 900px;
+  margin: auto;
+}
+
+h1 {
+  text-align: center;
+  color: #020617;
+}
+
+.subtitle {
+  text-align: center;
+  color: var(--muted);
+  margin-bottom: 30px;
+}
+
+/* ===== SCORE ===== */
+.score-card {
+  background: #eae5f9;
+  border-radius: 18px;
+  padding: 30px;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 25px;
+}
+
+.donut {
+  width: 230px;
+  height: 230px;
+  position: relative;
+}
+
+.donut svg { transform: rotate(-90deg); }
+.donut circle { fill: none; stroke-width: 26; }
+.bg { stroke: #1e293b; }
+.progress {
+  stroke: var(--primary);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1.2s ease;
+}
+
+.donut-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 36px;
+  font-weight: bold;
+  color: var(--primary);
+}
+
+/* ===== CARDS ===== */
+.card {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 20px;
+  color: var(--text);
+}
+
+.card ul { padding-left: 20px; }
+.card li { margin-bottom: 8px; }
+
+/* ===== ACTIONS ===== */
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+button {
+  background: transparent;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  padding: 12px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.error {
+  background: #450a0a;
+  color: #fecaca;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+}
 </style>
 </head>
 
 <body>
 
+<!-- NAVBAR -->
 <nav>
   <div class="nav-container">
     <a href="profile.html" class="nav-user">
@@ -51,133 +233,125 @@ button{padding:14px 30px;border-radius:16px;border:none;cursor:pointer;font-weig
   </div>
 </nav>
 
-<div class="wrapper">
-  <div class="card">
+<div class="container">
+  <h1>Your Career Analysis Results</h1>
+  <p class="subtitle">Personalized insights based on your resume</p>
+  <div id="content"></div>
 
-    <div class="progress-bar"><div class="progress" id="progress"></div></div>
-
-    <!-- STEP 1 -->
-    <div class="step active">
-      <h2>Career Goal</h2>
-      <input id="targetRole" placeholder="Target Role" />
-      <input id="targetCompany" placeholder="Target Company" style="margin-top:15px"/>
-      <div class="actions">
-        <span></span>
-        <button class="next">Next</button>
-      </div>
-    </div>
-
-    <!-- STEP 2 -->
-    <div class="step">
-      <h2>Timeline</h2>
-      <div class="options" id="timeline">
-        <div class="option">3 Months</div>
-        <div class="option">6 Months</div>
-        <div class="option">1 Year</div>
-      </div>
-      <div class="actions">
-        <button class="back">Back</button>
-        <button class="next">Next</button>
-      </div>
-    </div>
-
-    <!-- STEP 3 -->
-    <div class="step">
-      <h2>Skills to Improve</h2>
-      <textarea id="skills" style="width:100%;height:100px"></textarea>
-      <div class="actions">
-        <button class="back">Back</button>
-        <button class="next">Create Plan</button>
-      </div>
-    </div>
-
+  <div class="actions">
+    <button onclick="goBack()">Analyze Another Resume</button>
+    <button onclick="downloadPDF()">Download PDF</button>
+    <button onclick="createPlan()">Create Plan</button>
   </div>
 </div>
 
-<script>
-/* ===================== HARD BLOCK ===================== */
-const params = new URLSearchParams(window.location.search);
-const docId = params.get("id");
+<!-- ===== LOGIC ===== -->
+<script type="module">
+import { auth, db } from "./firebase.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-if (!docId) {
-  alert("Analyze resume first.");
+/* ✅ FIXED PARSER */
+function parseAnalysis(text) {
+  const sections = {
+    strengths: [],
+    weaknesses: [],
+    improvement_areas: [],
+    actionable_suggestions: []
+  };
+
+  let current = null;
+
+  text.split("\n").forEach(line => {
+    line = line.trim();
+    if (!line) return;
+
+    if (/^strengths/i.test(line)) current = "strengths";
+    else if (/^weaknesses/i.test(line)) current = "weaknesses";
+    else if (/^improvement/i.test(line)) current = "improvement_areas";
+    else if (/^actionable/i.test(line)) current = "actionable_suggestions";
+    else if (current) {
+      sections[current].push(line.replace(/^-\s*/, ""));
+    }
+  });
+
+  return sections;
+}
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  const id = new URLSearchParams(window.location.search).get("id");
+  if (!id) {
+    document.getElementById("content").innerHTML =
+      `<div class="error">No analysis selected</div>`;
+    return;
+  }
+
+  const ref = doc(db, "resumeHistory", user.uid, "analyses", id);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) {
+    document.getElementById("content").innerHTML =
+      `<div class="error">Analysis not found</div>`;
+    return;
+  }
+
+  const data = snap.data();
+  const parsed = parseAnalysis(data.analysis || "");
+  const score = Math.round(data.score || 0);
+
+  const r = 105;
+  const c = 2 * Math.PI * r;
+  const offset = c - (score / 100) * c;
+
+  document.getElementById("content").innerHTML = `
+    <div class="score-card">
+      <div class="donut">
+        <svg viewBox="0 0 260 260">
+          <circle class="bg" cx="130" cy="130" r="${r}" />
+          <circle class="progress" cx="130" cy="130" r="${r}"
+            stroke-dasharray="${c}"
+            stroke-dashoffset="${c}" />
+        </svg>
+        <div class="donut-center">${score}%</div>
+      </div>
+    </div>
+
+    ${makeCard("Strengths", parsed.strengths)}
+    ${makeCard("Weaknesses", parsed.weaknesses)}
+    ${makeCard("Improvement Areas", parsed.improvement_areas)}
+    ${makeCard("Actionable Suggestions", parsed.actionable_suggestions)}
+  `;
+
+  requestAnimationFrame(() => {
+    document.querySelector(".progress").style.strokeDashoffset = offset;
+  });
+
+  localStorage.setItem("analysisResult", JSON.stringify(data));
+});
+
+function makeCard(title, items) {
+  if (!items.length) return "";
+  return `<div class="card"><h2>${title}</h2><ul>${items.map(i => `<li>${i}</li>`).join("")}</ul></div>`;
+}
+
+function goBack() {
   window.location.href = "index2.html";
 }
 
-/* ===================== LOAD AI ANALYSIS ===================== */
-let resumeAnalysis = "";
-
-fetch(`http://localhost:8000/resume-analysis?id=${docId}`)
-  .then(res => res.json())
-  .then(data => {
-    resumeAnalysis = data.analysis;
-    if (!resumeAnalysis) throw new Error();
-  })
-  .catch(() => {
-    alert("Resume analysis missing.");
-    window.location.href = "index2.html";
-  });
-
-/* ===================== STEPS ===================== */
-const steps = document.querySelectorAll(".step");
-const progress = document.getElementById("progress");
-let current = 0;
-
-function update(){
-  steps.forEach(s=>s.classList.remove("active"));
-  steps[current].classList.add("active");
-  progress.style.width=((current+1)/steps.length*100)+"%";
-}
-
-document.querySelectorAll(".next").forEach(btn=>{
-  btn.onclick=async()=>{
-    if(current===steps.length-1){
-      await createPlan();
-    }else{
-      current++;update();
-    }
-  }
-});
-
-document.querySelectorAll(".back").forEach(btn=>{
-  btn.onclick=()=>{current--;update()}
-});
-
-document.querySelectorAll(".option").forEach(o=>{
-  o.onclick=()=>{
-    o.parentElement.querySelectorAll(".option").forEach(x=>x.classList.remove("active"));
-    o.classList.add("active");
-  }
-});
-
-/* ===================== SEND TO AI ===================== */
-async function createPlan(){
-  const payload = {
-    resumeAnalysis,
-    targetRole: targetRole.value,
-    targetCompany: targetCompany.value,
-    timeline: document.querySelector("#timeline .option.active")?.textContent,
-    skillsToImprove: skills.value
-  };
-
-  const res = await fetch("http://localhost:8000/study-plan",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify(payload)
-  });
-
-  const data = await res.json();
-  if(data.study_plan){
-    sessionStorage.setItem("studyPlanData",data.study_plan);
-    window.location.href="study-plan-result.html";
-  }else{
-    alert("AI failed to generate plan");
-  }
+function createPlan() {
+  const id = new URLSearchParams(window.location.search).get("id");
+  window.location.href = `createplan.html?id=${id}`;
 }
 </script>
 
-<script type="module" src="auth.js"></script>
-<script type="module" src="profile.js"></script>
 
+
+<script type="module" src="profile.js"></script>
+<script type="module" src="auth.js"></script>
 </body>
 </html>
