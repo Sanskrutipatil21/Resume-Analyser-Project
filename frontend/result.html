@@ -5,121 +5,27 @@
   <title>Resume Analysis Result</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- ===== STYLES ===== -->
   <style>
-    /* ===== NAV ===== */
+    nav {
+      background: linear-gradient(90deg, #5c6bc0, #512da8, #5c6bc0);
+      padding: 22px 0;
+      margin-top: 10px;
+      border-radius: 40px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+    .nav-container {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px;
+    }
+    .nav-user { display: flex; align-items: center; gap: 10px; color: white; font-size: 16px; }
+    .user-avatar {
+      width: 36px; height: 36px; background: rgba(255,255,255,.25);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    }
+    nav ul { list-style: none; display: flex; margin: 0; padding: 0; }
+    nav ul li { margin: 0 35px; }
+    nav ul li a { color: white; text-decoration: none; font-size: 20px; }
 
-
-
-/* ===== Navbar Styling (SAME AS HOME) ===== */
-nav {
-  background: linear-gradient(90deg, #5c6bc0, #512da8, #5c6bc0);
-  padding: 22px 0;
-  margin-top: 10px;
-  border-radius: 40px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-/* NAV FLEX CONTAINER */
-.nav-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 40px;
-}
-
-/* USER PROFILE */
-.nav-user {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  margin-top: 6px;
-}
-
-.user-avatar {
-  width: 36px;
-  height: 36px;
-  background: rgba(255, 255, 255, 0.25);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.user-name {
-  position: relative;
-  padding-bottom: 5px;
-}
-
-/* USER NAME UNDERLINE */
-.user-name::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -5px;
-  width: 0%;
-  height: 3px;
-  background-color: #ffffff;
-  transition: width 0.3s ease;
-  border-radius: 4px;
-}
-
-.nav-user:hover .user-name::after {
-  width: 100%;
-}
-
-/* NAV LINKS */
-nav ul {
-  list-style: none;
-  display: flex;
-  padding: 0;
-  margin: 0;
-}
-
-nav ul li {
-  margin: 0 35px;
-  position: relative;
-}
-
-nav ul li a {
-  text-decoration: none;
-  color: white;
-  font-weight: 500;
-  font-size: 20px;
-  position: relative;
-  padding-bottom: 5px;
-}
-
-nav ul li a::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -5px;
-  width: 0%;
-  height: 3px;
-  background-color: #ffffff;
-  transition: width 0.3s ease;
-  border-radius: 4px;
-}
-
-nav ul li a:hover::after {
-  width: 100%;
-}
-
-
-
-
-
-
-
-
-
-
-
-    /* ===== THEME ===== */
     :root {
       --primary: #6366f1;
       --bg: #eae5f9;
@@ -127,321 +33,188 @@ nav ul li a:hover::after {
       --text: #e5e7eb;
       --muted: #94a3b8;
     }
+    body { margin: 0; background: var(--bg); padding: 20px; font-family: system-ui, sans-serif; }
+    .container { max-width: 900px; margin: auto; }
+    h1 { text-align: center; color: #020617; }
+    .subtitle { text-align: center; color: var(--muted); margin-bottom: 30px; }
 
-    body {
-      margin: 0;
-      background: var(--bg);
-      padding: 20px;
-      font-family: system-ui, sans-serif;
-    }
-
-    .container {
-      max-width: 900px;
-      margin: auto;
-    }
-
-    h1 {
-      text-align: center;
-      color: #020617;
-    }
-
-    .subtitle {
-      text-align: center;
-      color: var(--muted);
-      margin-bottom: 30px;
-    }
-
-    /* ===== SCORE ===== */
     .score-card {
-      background: #eae5f9;
-      border-radius: 18px;
-      padding: 30px;
-      display: flex;
-      justify-content: center;
-      margin-bottom: 25px;
+      background: #eae5f9; border-radius: 18px; padding: 30px;
+      display: flex; justify-content: center; margin-bottom: 25px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.4);
     }
-
-    .donut {
-      width: 230px;
-      height: 230px;
-      position: relative;
-    }
-    .donut svg {
-      transform: rotate(-90deg);
-    }
-    .donut circle {
-      fill: none;
-      stroke-width: 26;
-    }
-    .bg {
-      stroke: #1e293b;
-    }
-    .progress {
-      stroke: var(--primary);
-      stroke-linecap: round;
-      transition: stroke-dashoffset 1.4s ease;
-    }
+    .donut { width: 230px; height: 230px; position: relative; }
+    .donut svg { transform: rotate(-90deg); }
+    .donut circle { fill: none; stroke-width: 26; }
+    .bg { stroke: #1e293b; }
+    .progress { stroke: var(--primary); stroke-linecap: round; transition: stroke-dashoffset 1.4s ease; }
     .donut-center {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 36px;
-      font-weight: bold;
-      color: var(--primary);
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      font-size: 36px; font-weight: bold; color: var(--primary);
     }
 
-    /* ===== CARDS ===== */
     .card {
-      background: var(--card);
-      border-radius: 14px;
-      padding: 20px;
-      margin-bottom: 20px;
-      color: var(--text);
+      background: var(--card); border-radius: 14px; padding: 20px;
+      margin-bottom: 20px; color: var(--text);
       box-shadow: 0 10px 30px rgba(0,0,0,0.35);
     }
+    ul { padding-left: 20px; }
+    li { margin-bottom: 8px; }
 
-    h2 {
-      margin-top: 0;
-    }
-
-    ul {
-      padding-left: 20px;
-    }
-
-    li {
-      margin-bottom: 8px;
-    }
-
-    /* ===== ACTIONS ===== */
-    .actions {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin-top: 30px;
-    }
+    .actions { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
     button {
-      background: transparent;
-      border: 2px solid var(--primary);
-      color: var(--primary);
-      padding: 12px 20px;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: 0.3s ease;
+      background: transparent; border: 2px solid var(--primary);
+      color: var(--primary); padding: 12px 20px; border-radius: 10px;
+      cursor: pointer; transition: .3s ease;
     }
-    button:hover {
-      background: var(--primary);
-      color: white;
-    }
-
-    .btn-primary{  background: transparent;
-      border: 2px solid var(--primary);
-      color: var(--primary);
-      padding: 12px 20px;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: 0.3s ease;}
-    .btn-primary:hover{   background: var(--primary);
-      color: white;}
-
-    .error {
-      background: #450a0a;
-      color: #fecaca;
-      padding: 15px;
-      border-radius: 10px;
-      text-align: center;
-    }
+    button:hover { background: var(--primary); color: white; }
+    .error { background: #450a0a; color: #fecaca; padding: 15px; border-radius: 10px; text-align: center; }
   </style>
 </head>
 
 <body>
-  <!-- NAVBAR -->
 
 <nav>
   <div class="nav-container">
     <a href="profile.html" class="nav-user">
       <div class="user-avatar">👤</div>
-      <span id="userName" class="user-name">Guest</span>
+      <span id="userName">Guest</span>
     </a>
-
     <ul>
       <li><a href="home.html">Home</a></li>
-      <li><a href="index2.html" class="active">Analyse</a></li>
+      <li><a href="index2.html">Analyse</a></li>
       <li><a href="contact.html">Contact Us</a></li>
-      <li><a href="index.html" onclick="logoutUser()">Log Out</a></li>
+      <li><a href="index.html">Log Out</a></li>
     </ul>
   </div>
 </nav>
 
+<div class="container">
+  <h1>Your Career Analysis Results</h1>
+  <p class="subtitle">Personalized insights based on your resume</p>
 
+  <div id="content"></div>
 
-  <div class="container">
-    <h1>Your Career Analysis Results</h1>
-    <p class="subtitle">Personalized insights based on your resume</p>
-
-    <div id="content"></div>
-
-    <div class="actions">
-      <button onclick="goBack()">Analyze Another Resume</button>
-      <button class="btn-primary" onclick="downloadPDF()">Download PDF</button>
-      <button class="btn-primary" onclick="createplan()">Create Plan</button>
-    </div>
+  <div class="actions">
+    <button onclick="goBack()">Analyze Another Resume</button>
+    <button onclick="downloadPDF()">Download PDF</button>
+    <button onclick="createplan()">Create Plan</button>
   </div>
+</div>
 
-  <!-- ===== FIREBASE LOGIC ===== -->
-  <script type="module">
-    import { auth, db } from "./firebase.js";
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
-    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+<script type="module">
+  import { auth, db } from "./firebase.js";
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+  import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-    const content = document.getElementById("content");
+  const content = document.getElementById("content");
 
-    function parseAnalysis(text) {
-      const sections = { strengths: [], weaknesses: [], improvement_areas: [], actionable_suggestions: [] };
-      let current = null;
-      text.split("\n").forEach(line => {
-        line = line.trim();
-        if (/^strengths/i.test(line)) current = "strengths";
-        else if (/^weaknesses/i.test(line)) current = "weaknesses";
-        else if (/^improvement/i.test(line)) current = "improvement_areas";
-        else if (/^actionable/i.test(line)) current = "actionable_suggestions";
-        else if (line.startsWith("-") && current) sections[current].push(line.replace(/^-\s*/, ""));
-      });
-      return sections;
-    }
+  function getQueryParam(param) {
+    return new URLSearchParams(window.location.search).get(param);
+  }
 
-    function getQueryParam(param) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(param);
-    }
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = "index.html"; return; }
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = "index.html";
-        return;
-      }
+    const docId = getQueryParam("id");
+    if (!docId) { content.innerHTML = `<div class="error">No analysis selected.</div>`; return; }
 
-      const docId = getQueryParam("id");
-      if (!docId) {
-        content.innerHTML = `<div class="error">No analysis selected.</div>`;
-        return;
-      }
+    try {
+      const snap = await getDoc(doc(db, "resumeHistory", user.uid, "analyses", docId));
+      if (!snap.exists()) { content.innerHTML = `<div class="error">Analysis not found.</div>`; return; }
 
-      try {
-        const docRef = doc(db, "resumeHistory", user.uid, "analyses", docId);
-        const docSnap = await getDoc(docRef);
+      const data = snap.data();
 
-        if (!docSnap.exists()) {
-          content.innerHTML = `<div class="error">Analysis not found.</div>`;
-          return;
-        }
-
-        const data = docSnap.data();
-        const parsed = parseAnalysis(data.analysis || "");
-        const score = Math.min(Math.max(data.score || 0, 0), 100);
-
-        const radius = 105;
-        const circumference = 2 * Math.PI * radius;
-        const offset = circumference - (score / 100) * circumference;
-
-        content.innerHTML = `
-          <div class="score-card">
-            <div class="donut">
-              <svg viewBox="0 0 260 260">
-                <circle class="bg" cx="130" cy="130" r="${radius}" />
-                <circle class="progress" cx="130" cy="130" r="${radius}"
-                  stroke-dasharray="${circumference}"
-                  stroke-dashoffset="${circumference}" />
-              </svg>
-              <div class="donut-center">${score}%</div>
-            </div>
-          </div>
-
-          <div class="card"><h2>Strengths</h2><ul>${parsed.strengths.map(i=>`<li>${i}</li>`).join("")}</ul></div>
-          <div class="card"><h2>Weaknesses</h2><ul>${parsed.weaknesses.map(i=>`<li>${i}</li>`).join("")}</ul></div>
-          <div class="card"><h2>Improvement Areas</h2><ul>${parsed.improvement_areas.map(i=>`<li>${i}</li>`).join("")}</ul></div>
-          <div class="card"><h2>Actionable Suggestions</h2><ul>${parsed.actionable_suggestions.map(i=>`<li>${i}</li>`).join("")}</ul></div>
-        `;
-
-        requestAnimationFrame(() => {
-          document.querySelector(".progress").style.strokeDashoffset = offset;
-        });
-
-        // Save the latest viewed analysis in localStorage for PDF download
-        localStorage.setItem("analysisResult", JSON.stringify({
-          analysis: data.analysis,
-          score: score
-        }));
-
-      } catch (err) {
-        console.error(err);
-        content.innerHTML = `<div class="error">Failed to load analysis.</div>`;
-      }
-    });
-
-    function goBack() {
-      window.location.href = "index2.html";
-    }
-  </script>
-
-  <!-- ===== PDF DOWNLOAD ===== -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script>
-    function parseAnalysis(text) {
-      const sections = { strengths: [], weaknesses: [], improvement_areas: [], actionable_suggestions: [] };
-      let current = null;
-      text.split("\n").forEach(line => {
-        line = line.trim();
-        if (/^strengths/i.test(line)) current = "strengths";
-        else if (/^weaknesses/i.test(line)) current = "weaknesses";
-        else if (/^improvement/i.test(line)) current = "improvement_areas";
-        else if (/^actionable/i.test(line)) current = "actionable_suggestions";
-        else if (line.startsWith("-") && current) sections[current].push(line.replace(/^-\s*/, ""));
-      });
-      return sections;
-    }
-
-    function downloadPDF() {
-      const raw = localStorage.getItem("analysisResult");
-      if (!raw) return;
-
-      const data = JSON.parse(raw);
-      const parsed = parseAnalysis(data.analysis || "");
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      let y = 15;
-
-      doc.setFontSize(18);
-      doc.text("Resume Analysis Report", 14, y);
-      y += 10;
-
-      const add = (title, items) => {
-        doc.setFontSize(14);
-        doc.text(title, 14, y);
-        y += 6;
-        doc.setFontSize(11);
-        items.forEach(i => {
-          const lines = doc.splitTextToSize("- " + i, 180);
-          doc.text(lines, 18, y);
-          y += lines.length * 6;
-        });
-        y += 4;
+      const parsed = {
+        strengths: data.strengths || [],
+        weaknesses: data.weaknesses || [],
+        improvement_areas: data.improvement_areas || [],
+        actionable_suggestions: data.suggestions || []
       };
 
-      add("Strengths", parsed.strengths);
-      add("Weaknesses", parsed.weaknesses);
-      add("Improvement Areas", parsed.improvement_areas);
-      add("Actionable Suggestions", parsed.actionable_suggestions);
+      const score = Math.min(Math.max(data.score || 0, 0), 100);
+      const radius = 105;
+      const circumference = 2 * Math.PI * radius;
+      const offset = circumference - (score / 100) * circumference;
 
-      doc.save("Resume_Analysis_Report.pdf");
-    }
+      const list = (arr) => arr.length ? arr.map(i=>`<li>${i}</li>`).join("") : `<li>No data available</li>`;
 
-    function createplan(){
-      const docId = new URLSearchParams(window.location.search).get('id');
-      window.location.href = `createplan.html${docId ? `?id=${docId}` : ''}`;
+      content.innerHTML = `
+        <div class="score-card">
+          <div class="donut">
+            <svg viewBox="0 0 260 260">
+              <circle class="bg" cx="130" cy="130" r="${radius}" />
+              <circle class="progress" cx="130" cy="130" r="${radius}"
+                stroke-dasharray="${circumference}"
+                stroke-dashoffset="${circumference}" />
+            </svg>
+            <div class="donut-center">${score}%</div>
+          </div>
+        </div>
+
+        <div class="card"><h2>Strengths</h2><ul>${list(parsed.strengths)}</ul></div>
+        <div class="card"><h2>Weaknesses</h2><ul>${list(parsed.weaknesses)}</ul></div>
+        <div class="card"><h2>Improvement Areas</h2><ul>${list(parsed.improvement_areas)}</ul></div>
+        <div class="card"><h2>Actionable Suggestions</h2><ul>${list(parsed.actionable_suggestions)}</ul></div>
+      `;
+
+      requestAnimationFrame(() => {
+        document.querySelector(".progress").style.strokeDashoffset = offset;
+      });
+
+      localStorage.setItem("analysisResult", JSON.stringify({
+        strengths: parsed.strengths,
+        weaknesses: parsed.weaknesses,
+        improvement_areas: parsed.improvement_areas,
+        suggestions: parsed.actionable_suggestions,
+        score
+      }));
+    } catch (e) {
+      content.innerHTML = `<div class="error">Failed to load analysis.</div>`;
     }
-  </script>
+  });
+
+  window.goBack = () => window.location.href = "index2.html";
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+  function downloadPDF() {
+    const raw = localStorage.getItem("analysisResult");
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    let y = 15;
+
+    doc.setFontSize(18);
+    doc.text("Resume Analysis Report", 14, y);
+    y += 10;
+
+    const add = (title, items) => {
+      doc.setFontSize(14); doc.text(title, 14, y); y += 6;
+      doc.setFontSize(11);
+      (items || []).forEach(i => {
+        const lines = doc.splitTextToSize("- " + i, 180);
+        doc.text(lines, 18, y);
+        y += lines.length * 6;
+      });
+      y += 4;
+    };
+
+    add("Strengths", data.strengths);
+    add("Weaknesses", data.weaknesses);
+    add("Improvement Areas", data.improvement_areas);
+    add("Actionable Suggestions", data.suggestions);
+
+    doc.save("Resume_Analysis_Report.pdf");
+  }
+
+  function createplan(){
+    const id = new URLSearchParams(window.location.search).get('id');
+    window.location.href = `createplan.html${id ? `?id=${id}` : ''}`;
+  }
+</script>
 
 </body>
 </html>
