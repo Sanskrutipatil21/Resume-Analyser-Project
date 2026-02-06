@@ -23,8 +23,7 @@ nav{background:linear-gradient(90deg,#5c6bc0,#512da8);padding:20px 40px;color:wh
 @keyframes fade{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 .step h2{color:#512da8;margin-bottom:8px;} 
 .step p{color:#555;margin-bottom:25px;}
-.field{margin-bottom:30px}
-label{font-weight:600;margin-bottom:10px;display:block}
+.field{margin-bottom:30px}label{font-weight:600;margin-bottom:10px;display:block}
 input,textarea{width:100%;padding:16px;border-radius:14px;border:1px solid rgba(0,0,0,0.15);font-size:1rem;}
 textarea{resize:none;min-height:90px;}
 .options{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;}
@@ -35,10 +34,150 @@ textarea{resize:none;min-height:90px;}
 button{padding:14px 32px;border:none;border-radius:16px;font-weight:600;cursor:pointer;}
 .next{background:linear-gradient(135deg,#5c6bc0,#512da8);color:white;} 
 .back{background:transparent;border:1px solid #aaa;}
+#studyPlanResult{margin-top:50px;display:none;background:linear-gradient(135deg,rgba(92,107,192,0.05),rgba(81,45,168,0.05));backdrop-filter:blur(10px);padding:45px;border-radius:28px;box-shadow:0 25px 50px rgba(0,0,0,0.08),inset 0 1px 0 rgba(255,255,255,0.3);border:1px solid rgba(92,107,192,0.1);}
+#studyPlanResult h2{color:#512da8;font-size:2rem;margin:0 0 30px 0;text-align:center;background:linear-gradient(135deg,#5c6bc0,#512da8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+#studyPlanResult ul{margin:0;padding:0;list-style:none;}
+#studyPlanResult ul li{margin-bottom:18px;padding:18px;background:rgba(255,255,255,0.7);border-left:4px solid #5c6bc0;border-radius:12px;font-size:0.95rem;line-height:1.6;color:#333;transition:0.3s;box-shadow:0 4px 12px rgba(0,0,0,0.05);} 
+#studyPlanResult ul li:hover{background:rgba(255,255,255,0.9);transform:translateX(8px);box-shadow:0 8px 20px rgba(92,107,192,0.15);} 
+#studyPlanResult ul li strong{color:#512da8;font-weight:700;} 
+#studyPlanResult ul li:nth-child(odd){border-left-color:#5c6bc0;} 
+#studyPlanResult ul li:nth-child(even){border-left-color:#7986cb;} 
+
+
+
+
+
+
+
+
+
+/* ===== Navbar Styling (SAME AS HOME) ===== */
+nav {
+  background: linear-gradient(90deg, #5c6bc0, #512da8, #5c6bc0);
+  padding: 22px 0;
+  margin-top: 10px;
+  border-radius: 40px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* NAV FLEX CONTAINER */
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+}
+
+/* USER PROFILE */
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-name {
+  position: relative;
+  padding-bottom: 5px;
+}
+
+/* USER NAME UNDERLINE */
+.user-name::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 0%;
+  height: 3px;
+  background-color: #ffffff;
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+.nav-user:hover .user-name::after {
+  width: 100%;
+}
+
+/* NAV LINKS */
+nav ul {
+  list-style: none;
+  display: flex;
+  padding: 0;
+  margin: 0;
+}
+
+nav ul li {
+  margin: 0 35px;
+  position: relative;
+}
+
+nav ul li a {
+  text-decoration: none;
+  color: white;
+  font-weight: 500;
+  font-size: 20px;
+  position: relative;
+  padding-bottom: 5px;
+}
+
+nav ul li a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 0%;
+  height: 3px;
+  background-color: #ffffff;
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+nav ul li a:hover::after {
+  width: 100%;
+}
+
+
+
+
+
+
+
+
+
+
 </style>
 </head>
-
 <body>
+
+<nav>
+  <div class="nav-container">
+    <a href="profile.html" class="nav-user">
+      <div class="user-avatar">👤</div>
+      <span id="userName" class="user-name">Guest</span>
+    </a>
+
+    <ul>
+      <li><a href="home.html">Home</a></li>
+      <li><a href="index2.html" class="active">Analyse</a></li>
+      <li><a href="contact.html">Contact Us</a></li>
+      <li><a href="index.html" onclick="logoutUser()">Log Out</a></li>
+    </ul>
+  </div>
+</nav>
+
 
 <div class="wrapper">
   <div class="header">
@@ -51,85 +190,231 @@ button{padding:14px 32px;border:none;border-radius:16px;font-weight:600;cursor:p
       <div class="progress" id="progress"></div>
     </div>
 
-    <!-- steps unchanged (UI only) -->
-    <!-- ... UI CONTENT SAME AS YOUR FILE ... -->
+    <!-- STEP 1 -->
+    <div class="step active" data-step="1">
+      <h2>Career Goal</h2>
+      <p>What are you preparing for?</p>
+      <div class="field">
+        <label for="targetRole">Target Role <span style="color:red">*</span></label>
+        <input id="targetRole" type="text" placeholder="Software Engineer, Data Analyst…" required/>
+      </div>
+      <div class="field">
+        <label for="targetCompany">Target Company / Type <span style="color:red">*</span></label>
+        <input id="targetCompany" type="text" placeholder="Google / Product-based / Startup" required/>
+      </div>
+      <div class="actions">
+        <span></span>
+        <button class="next" type="button">Next</button>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step" data-step="2">
+      <h2>Timeline & Commitment</h2>
+      <p>Be realistic — this makes the plan effective</p>
+      <div class="field">
+        <label>Deadline <span style="color:red">*</span></label>
+        <div class="options" data-field="timeline">
+          <div class="option">3 Months</div>
+          <div class="option">6 Months</div>
+          <div class="option">1 Year</div>
+          <div class="option">Flexible</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Daily Study Hours <span style="color:red">*</span></label>
+        <div class="options" data-field="dailyHours">
+          <div class="option">1–2 hrs</div>
+          <div class="option">3–4 hrs</div>
+          <div class="option">5+ hrs</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="back" type="button">Back</button>
+        <button class="next" type="button">Next</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step" data-step="3">
+      <h2>Skills & Experience</h2>
+      <p>Tell us where you stand</p>
+      <div class="field">
+        <label>Current Skill Level</label>
+        <div class="options">
+          <div class="option">Beginner</div>
+          <div class="option">Intermediate</div>
+          <div class="option">Advanced</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Skills to Improve</label>
+        <textarea placeholder="DSA, React, SQL, System Design…"></textarea>
+      </div>
+      <div class="actions">
+        <button class="back">Back</button>
+        <button class="next">Next</button>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step" data-step="4">
+      <h2>Learning Preferences</h2>
+      <p>How do you learn best?</p>
+      <div class="field">
+        <label>Learning Style</label>
+        <div class="options">
+          <div class="option">Videos</div>
+          <div class="option">Projects</div>
+          <div class="option">Reading</div>
+          <div class="option">Mixed</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Study Preference</label>
+        <div class="options">
+          <div class="option">Solo</div>
+          <div class="option">Group</div>
+          <div class="option">Mentor-guided</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="back">Back</button>
+        <button class="next">Next</button>
+      </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="step" data-step="5">
+      <h2>Challenges & Output</h2>
+      <p>Final touches for personalization</p>
+      <div class="field">
+        <label>Biggest Challenge</label>
+        <textarea placeholder="Time, motivation, confusion…"></textarea>
+      </div>
+      <div class="field">
+        <label>Preferred Plan Format</label>
+        <div class="options">
+          <div class="option">Daily</div>
+          <div class="option">Weekly</div>
+          <div class="option">Milestones</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="back">Back</button>
+        <button class="next" type="button">Create Plan</button>
+      </div>
+    </div>
 
   </div>
 </div>
 
 <script>
-/* ================= FIX STARTS HERE ================= */
-
-// ✅ PRODUCTION BACKEND URL
-const API_BASE_URL = "https://resume-analyser-project.onrender.com";
-
 const steps = document.querySelectorAll('.step');
 const progress = document.getElementById('progress');
-let current = 0;
+let current=0;
 
+// --- Fetch resume analysis from result.html ---
 let resumeAnalysis = '';
 const urlParams = new URLSearchParams(window.location.search);
 const docId = urlParams.get('id');
-
-// ✅ FIXED: resume analysis fetch
 if(docId){
-  fetch(`${API_BASE_URL}/resume-analysis?id=${docId}`)
-    .then(res => res.json())
-    .then(data => {
+  fetch(`http://localhost:8000/resume-analysis?id=${docId}`)
+    .then(res=>res.json())
+    .then(data=>{
       resumeAnalysis = data.analysis || '';
-      console.log("Resume analysis loaded");
+      console.log("Resume analysis loaded:", resumeAnalysis);
     })
-    .catch(err => console.error("Resume analysis fetch failed", err));
+    .catch(err=>console.error("Failed to fetch resume analysis:", err));
 }
+
+function update(){
+  steps.forEach(s=>s.classList.remove('active'));
+  steps[current].classList.add('active');
+  progress.style.width=((current+1)/steps.length*100)+'%';
+}
+
+function validateStep(step){
+  let valid=true;
+  step.querySelectorAll('input,textarea').forEach(el=>{
+    if(el.value.trim()===''){valid=false;el.style.borderColor='red';}else{el.style.borderColor='rgba(0,0,0,0.15)'}
+  });
+  step.querySelectorAll('.options').forEach(group=>{
+    if(!group.querySelector('.option.active')){valid=false;group.style.outline='2px solid red';group.style.borderRadius='16px';}else{group.style.outline='none'}
+  });
+  if(!valid) alert('Please fill all fields before proceeding.');
+  return valid;
+}
+
+document.querySelectorAll('.next').forEach(btn=>{
+  btn.onclick=()=>{
+    if(!validateStep(steps[current])) return;
+    if(current<steps.length-1){current++;update();}
+  }
+});
+document.querySelectorAll('.back').forEach(btn=>{
+  btn.onclick=()=>{if(current>0){current--;update();}}
+});
+document.querySelectorAll('.option').forEach(opt=>{
+  opt.onclick=()=>{
+    opt.parentElement.querySelectorAll('.option').forEach(o=>o.classList.remove('active'));
+    opt.classList.add('active');
+  }
+});
 
 function collectUserInfo(){
   return {
-    resumeAnalysis,
+    resumeAnalysis, // added this line
     targetRole: document.getElementById('targetRole').value,
     targetCompany: document.getElementById('targetCompany').value,
-    timeline: document.querySelector('[data-field="timeline"] .option.active')?.textContent || '',
-    dailyHours: document.querySelector('[data-field="dailyHours"] .option.active')?.textContent || '',
-    skillLevel: document.querySelectorAll('.step[data-step="3"] .option.active')[0]?.textContent || '',
-    skillsToImprove: document.querySelector('.step[data-step="3"] textarea')?.value || '',
-    learningStyle: document.querySelectorAll('.step[data-step="4"] .option.active')[0]?.textContent || '',
-    studyPreference: document.querySelectorAll('.step[data-step="4"] .option.active')[1]?.textContent || '',
-    biggestChallenge: document.querySelector('.step[data-step="5"] textarea')?.value || '',
-    planFormat: document.querySelectorAll('.step[data-step="5"] .option.active')[0]?.textContent || ''
+    timeline: document.querySelector('[data-field="timeline"] .option.active')?.textContent||'',
+    dailyHours: document.querySelector('[data-field="dailyHours"] .option.active')?.textContent||'',
+    skillLevel: document.querySelectorAll('.step[data-step="3"] .option.active')[0]?.textContent||'',
+    skillsToImprove: document.querySelector('.step[data-step="3"] textarea')?.value||'',
+    learningStyle: document.querySelectorAll('.step[data-step="4"] .option.active')[0]?.textContent||'',
+    studyPreference: document.querySelectorAll('.step[data-step="4"] .option.active')[1]?.textContent||'',
+    biggestChallenge: document.querySelector('.step[data-step="5"] textarea')?.value||'',
+    planFormat: document.querySelectorAll('.step[data-step="5"] .option.active')[0]?.textContent||''
   };
 }
 
-// ✅ FIXED: study plan API call
 async function sendToBackend(userInfo){
   try{
-    const res = await fetch(`${API_BASE_URL}/study-plan`,{
+    console.log('Sending request with:', userInfo);
+    const res = await fetch('http://localhost:8000/study-plan',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify(userInfo)
     });
-
+    console.log('Response status:', res.status);
     const data = await res.json();
-
+    console.log('Response data:', data);
+    
     if(data.study_plan){
+      // Store plan in sessionStorage
       sessionStorage.setItem('studyPlanData', data.study_plan);
+      // Redirect to result page
       window.location.href = 'study-plan-result.html';
-    } else {
-      alert('Could not generate plan.');
+    }else if(data.error){
+      alert('Error: '+data.error);
+    }else{
+      alert('Could not generate plan. Try again.');
     }
-  } catch(err){
-    alert('Backend error. Try again.');
-    console.error(err);
+  }catch(err){
+    console.error('Fetch error:', err);
+    alert('Error: '+err.message);
   }
 }
 
+// Trigger AI plan on last step
 document.querySelector('.step:last-child .next').onclick = async ()=>{
+  if(!validateStep(steps[current])) return;
   const userInfo = collectUserInfo();
   await sendToBackend(userInfo);
 };
-
-/* ================= FIX ENDS HERE ================= */
 </script>
-
 <script type="module" src="auth.js"></script>
 <script type="module" src="profile.js"></script>
+
 </body>
 </html>
