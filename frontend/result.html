@@ -6,28 +6,45 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 <style>
-/* ===== NAV ===== */
+:root {
+  --primary: #6366f1;
+  --bg: #eae5f9;
+  --card: #0f172a;
+  --text: #e5e7eb;
+  --muted: #94a3b8;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  padding: 20px;
+  font-family: system-ui, sans-serif;
+}
+
+/* ===== NAVBAR ===== */
 nav {
   background: linear-gradient(90deg, #5c6bc0, #512da8, #5c6bc0);
-  padding: 22px 0;
-  margin-top: 10px;
+  padding: 20px 0;
   border-radius: 40px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  margin-bottom: 30px;
 }
+
 .nav-container {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 40px;
 }
+
 .nav-user {
   display: flex;
   align-items: center;
   gap: 10px;
   color: white;
-  font-size: 16px;
-  cursor: pointer;
+  text-decoration: none;
 }
+
 .user-avatar {
   width: 36px;
   height: 36px;
@@ -37,154 +54,125 @@ nav {
   align-items: center;
   justify-content: center;
 }
-.user-name {
-  position: relative;
-  padding-bottom: 5px;
-}
-.user-name::after {
-  content:'';
-  position:absolute;
-  left:0;
-  bottom:-5px;
-  width:0%;
-  height:3px;
-  background:#fff;
-  transition:.3s;
-}
-.nav-user:hover .user-name::after { width:100%; }
 
 nav ul {
-  list-style:none;
-  display:flex;
-  margin:0;
-  padding:0;
+  list-style: none;
+  display: flex;
+  gap: 35px;
+  margin: 0;
+  padding: 0;
 }
-nav ul li { margin:0 30px; }
+
 nav ul li a {
-  color:white;
-  text-decoration:none;
-  font-size:20px;
-  position:relative;
-}
-nav ul li a::after {
-  content:'';
-  position:absolute;
-  left:0;
-  bottom:-5px;
-  width:0%;
-  height:3px;
-  background:white;
-  transition:.3s;
-}
-nav ul li a:hover::after { width:100%; }
-
-/* ===== THEME ===== */
-:root {
-  --primary:#6366f1;
-  --bg:#eae5f9;
-  --card:#0f172a;
-  --text:#e5e7eb;
-  --muted:#94a3b8;
+  text-decoration: none;
+  color: white;
+  font-size: 18px;
 }
 
-body {
-  margin:0;
-  background:var(--bg);
-  padding:20px;
-  font-family:system-ui,sans-serif;
-}
-
+/* ===== CONTENT ===== */
 .container {
-  max-width:900px;
-  margin:auto;
+  max-width: 900px;
+  margin: auto;
 }
 
-h1 { text-align:center; color:#020617; }
+h1 {
+  text-align: center;
+  color: #020617;
+}
+
 .subtitle {
-  text-align:center;
-  color:var(--muted);
-  margin-bottom:30px;
+  text-align: center;
+  color: var(--muted);
+  margin-bottom: 30px;
 }
 
 /* ===== SCORE ===== */
 .score-card {
-  background:#eae5f9;
-  border-radius:18px;
-  padding:30px;
-  display:flex;
-  justify-content:center;
-  margin-bottom:25px;
-  box-shadow:0 20px 40px rgba(0,0,0,0.4);
+  background: #eae5f9;
+  border-radius: 18px;
+  padding: 30px;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 25px;
 }
-.donut { width:230px; height:230px; position:relative; }
-.donut svg { transform:rotate(-90deg); }
-.donut circle { fill:none; stroke-width:26; }
-.bg { stroke:#1e293b; }
+
+.donut {
+  width: 230px;
+  height: 230px;
+  position: relative;
+}
+
+.donut svg { transform: rotate(-90deg); }
+.donut circle { fill: none; stroke-width: 26; }
+.bg { stroke: #1e293b; }
 .progress {
-  stroke:var(--primary);
-  stroke-linecap:round;
-  transition:stroke-dashoffset 1.4s ease;
+  stroke: var(--primary);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1.2s ease;
 }
+
 .donut-center {
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  font-size:36px;
-  font-weight:bold;
-  color:var(--primary);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 36px;
+  font-weight: bold;
+  color: var(--primary);
 }
 
 /* ===== CARDS ===== */
 .card {
-  background:var(--card);
-  border-radius:14px;
-  padding:20px;
-  margin-bottom:20px;
-  color:var(--text);
-  box-shadow:0 10px 30px rgba(0,0,0,0.35);
+  background: var(--card);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 20px;
+  color: var(--text);
 }
-ul { padding-left:20px; }
-li { margin-bottom:8px; }
+
+.card ul { padding-left: 20px; }
+.card li { margin-bottom: 8px; }
 
 /* ===== ACTIONS ===== */
 .actions {
-  display:flex;
-  justify-content:center;
-  gap:15px;
-  margin-top:30px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 30px;
 }
+
 button {
-  background:transparent;
-  border:2px solid var(--primary);
-  color:var(--primary);
-  padding:12px 20px;
-  border-radius:10px;
-  cursor:pointer;
-  transition:.3s;
+  background: transparent;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  padding: 12px 20px;
+  border-radius: 10px;
+  cursor: pointer;
 }
+
 button:hover {
-  background:var(--primary);
-  color:white;
+  background: var(--primary);
+  color: white;
 }
 
 .error {
-  background:#450a0a;
-  color:#fecaca;
-  padding:15px;
-  border-radius:10px;
-  text-align:center;
+  background: #450a0a;
+  color: #fecaca;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
 }
 </style>
 </head>
 
 <body>
 
+<!-- NAVBAR -->
 <nav>
   <div class="nav-container">
     <a href="profile.html" class="nav-user">
       <div class="user-avatar">👤</div>
-      <span id="userName" class="user-name">Guest</span>
+      <span id="userName">Guest</span>
     </a>
     <ul>
       <li><a href="home.html">Home</a></li>
@@ -203,18 +191,17 @@ button:hover {
   <div class="actions">
     <button onclick="goBack()">Analyze Another Resume</button>
     <button onclick="downloadPDF()">Download PDF</button>
-    <button onclick="createplan()">Create Plan</button>
+    <button onclick="createPlan()">Create Plan</button>
   </div>
 </div>
 
-<!-- ===== FIREBASE + LOGIC ===== -->
+<!-- ===== LOGIC ===== -->
 <script type="module">
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-const content = document.getElementById("content");
-
+/* ✅ FIXED PARSER */
 function parseAnalysis(text) {
   const sections = {
     strengths: [],
@@ -229,100 +216,89 @@ function parseAnalysis(text) {
     line = line.trim();
     if (!line) return;
 
-    if (/^strengths/i.test(line)) return current = "strengths";
-    if (/^weaknesses/i.test(line)) return current = "weaknesses";
-    if (/^improvement/i.test(line)) return current = "improvement_areas";
-    if (/^actionable/i.test(line)) return current = "actionable_suggestions";
-
-    if (current) {
-      sections[current].push(
-        line.replace(/^[-•\d.)]+\s*/, "")
-      );
+    if (/^strengths/i.test(line)) current = "strengths";
+    else if (/^weaknesses/i.test(line)) current = "weaknesses";
+    else if (/^improvement/i.test(line)) current = "improvement_areas";
+    else if (/^actionable/i.test(line)) current = "actionable_suggestions";
+    else if (current) {
+      sections[current].push(line.replace(/^-\s*/, ""));
     }
   });
 
   return sections;
 }
 
-const renderList = arr =>
-  arr.length ? arr.map(i => `<li>${i}</li>`).join("") : "<li>No data available</li>";
-
-onAuthStateChanged(auth, async user => {
-  if (!user) return window.location.href = "index.html";
-
-  const docId = new URLSearchParams(window.location.search).get("id");
-  if (!docId) {
-    content.innerHTML = `<div class="error">No analysis selected.</div>`;
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "index.html";
     return;
   }
 
-  try {
-    const snap = await getDoc(doc(db, "resumeHistory", user.uid, "analyses", docId));
-    if (!snap.exists()) {
-      content.innerHTML = `<div class="error">Analysis not found.</div>`;
-      return;
-    }
-
-    const data = snap.data();
-    const parsed = parseAnalysis(data.analysis || "");
-    const score = Math.min(Math.max(data.score || 0, 0), 100);
-
-    const r = 105;
-    const c = 2 * Math.PI * r;
-    const o = c - (score / 100) * c;
-
-    content.innerHTML = `
-      <div class="score-card">
-        <div class="donut">
-          <svg viewBox="0 0 260 260">
-            <circle class="bg" cx="130" cy="130" r="${r}"/>
-            <circle class="progress" cx="130" cy="130" r="${r}"
-              stroke-dasharray="${c}"
-              stroke-dashoffset="${c}"/>
-          </svg>
-          <div class="donut-center">${score}%</div>
-        </div>
-      </div>
-
-      <div class="card"><h2>Strengths</h2><ul>${renderList(parsed.strengths)}</ul></div>
-      <div class="card"><h2>Weaknesses</h2><ul>${renderList(parsed.weaknesses)}</ul></div>
-      <div class="card"><h2>Improvement Areas</h2><ul>${renderList(parsed.improvement_areas)}</ul></div>
-      <div class="card"><h2>Actionable Suggestions</h2><ul>${renderList(parsed.actionable_suggestions)}</ul></div>
-    `;
-
-    requestAnimationFrame(() => {
-      document.querySelector(".progress").style.strokeDashoffset = o;
-    });
-
-    localStorage.setItem("analysisResult", JSON.stringify(data));
-
-  } catch {
-    content.innerHTML = `<div class="error">Failed to load analysis.</div>`;
+  const id = new URLSearchParams(window.location.search).get("id");
+  if (!id) {
+    document.getElementById("content").innerHTML =
+      `<div class="error">No analysis selected</div>`;
+    return;
   }
+
+  const ref = doc(db, "resumeHistory", user.uid, "analyses", id);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) {
+    document.getElementById("content").innerHTML =
+      `<div class="error">Analysis not found</div>`;
+    return;
+  }
+
+  const data = snap.data();
+  const parsed = parseAnalysis(data.analysis || "");
+  const score = Math.round(data.score || 0);
+
+  const r = 105;
+  const c = 2 * Math.PI * r;
+  const offset = c - (score / 100) * c;
+
+  document.getElementById("content").innerHTML = `
+    <div class="score-card">
+      <div class="donut">
+        <svg viewBox="0 0 260 260">
+          <circle class="bg" cx="130" cy="130" r="${r}" />
+          <circle class="progress" cx="130" cy="130" r="${r}"
+            stroke-dasharray="${c}"
+            stroke-dashoffset="${c}" />
+        </svg>
+        <div class="donut-center">${score}%</div>
+      </div>
+    </div>
+
+    ${makeCard("Strengths", parsed.strengths)}
+    ${makeCard("Weaknesses", parsed.weaknesses)}
+    ${makeCard("Improvement Areas", parsed.improvement_areas)}
+    ${makeCard("Actionable Suggestions", parsed.actionable_suggestions)}
+  `;
+
+  requestAnimationFrame(() => {
+    document.querySelector(".progress").style.strokeDashoffset = offset;
+  });
+
+  localStorage.setItem("analysisResult", JSON.stringify(data));
 });
 
-function goBack() { window.location.href = "index2.html"; }
-function createplan() {
+function makeCard(title, items) {
+  if (!items.length) return "";
+  return `<div class="card"><h2>${title}</h2><ul>${items.map(i => `<li>${i}</li>`).join("")}</ul></div>`;
+}
+
+function goBack() {
+  window.location.href = "index2.html";
+}
+
+function createPlan() {
   const id = new URLSearchParams(window.location.search).get("id");
   window.location.href = `createplan.html?id=${id}`;
 }
 </script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script>
-function downloadPDF() {
-  const data = JSON.parse(localStorage.getItem("analysisResult") || "{}");
-  if (!data.analysis) return;
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  doc.text("Resume Analysis Report", 14, 20);
-  doc.save("Resume_Analysis_Report.pdf");
-}
-</script>
-
 <script type="module" src="profile.js"></script>
-<script type="module" src="auth.js"></script>
-
 </body>
 </html>
