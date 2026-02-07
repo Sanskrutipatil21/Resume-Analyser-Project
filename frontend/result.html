@@ -4,124 +4,36 @@
   <meta charset="UTF-8" />
   <title>Resume Analysis Result</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <style>
-    /* ===== THEME & LAYOUT ===== */
-    :root {
-      --primary: #6366f1;
-      --bg: #eae5f9;
-      --card: #0f172a;
-      --text: #e5e7eb;
-      --muted: #94a3b8;
-    }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      padding: 20px;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    nav {
-      background: linear-gradient(90deg, #5c6bc0, #512da8, #5c6bc0);
-      padding: 20px 0;
-      border-radius: 40px;
-      margin-bottom: 30px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    }
-
-    .nav-container { display: flex; justify-content: space-between; padding: 0 40px; align-items: center; color: white; }
-    nav ul { list-style: none; display: flex; margin: 0; padding: 0; }
-    nav ul li { margin-left: 25px; }
-    nav ul li a { color: white; text-decoration: none; font-weight: 500; }
-
+    :root { --primary: #6366f1; --bg: #eae5f9; --card: #0f172a; --text: #e5e7eb; }
+    body { margin: 0; background: var(--bg); padding: 20px; font-family: system-ui, sans-serif; }
     .container { max-width: 900px; margin: auto; }
-    h1 { text-align: center; color: #1e293b; margin-bottom: 5px; }
-    .subtitle { text-align: center; color: #64748b; margin-bottom: 30px; }
-
-    /* ===== SCORE DONUT ===== */
-    .score-card {
-      background: white;
-      border-radius: 20px;
-      padding: 30px;
-      display: flex;
-      justify-content: center;
-      margin-bottom: 30px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    }
-
+    .score-card { background: white; border-radius: 20px; padding: 30px; display: flex; justify-content: center; margin-bottom: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
     .donut { width: 200px; height: 200px; position: relative; }
     .donut svg { transform: rotate(-90deg); width: 200px; height: 200px; }
     .donut circle { fill: none; stroke-width: 20; }
     .bg-circle { stroke: #f1f5f9; }
-    .progress-circle {
-      stroke: var(--primary);
-      stroke-linecap: round;
-      transition: stroke-dashoffset 1s ease-out;
-    }
-    .donut-center {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 32px;
-      font-weight: bold;
-      color: var(--primary);
-    }
-
-    /* ===== DATA CARDS ===== */
-    .card {
-      background: var(--card);
-      border-radius: 15px;
-      padding: 25px;
-      margin-bottom: 20px;
-      color: var(--text);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-    }
+    .progress-circle { stroke: var(--primary); stroke-linecap: round; transition: stroke-dashoffset 1s ease-out; }
+    .donut-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 32px; font-weight: bold; color: var(--primary); }
+    .card { background: var(--card); border-radius: 15px; padding: 25px; margin-bottom: 20px; color: var(--text); }
     h2 { margin-top: 0; color: var(--primary); font-size: 1.25rem; border-bottom: 1px solid #334155; padding-bottom: 10px; }
-    ul { padding-left: 20px; margin-top: 15px; }
-    li { margin-bottom: 10px; line-height: 1.6; }
-
-    /* ===== BUTTONS ===== */
+    ul { padding-left: 20px; }
+    li { margin-bottom: 8px; line-height: 1.5; }
     .actions { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
-    button {
-      padding: 12px 25px;
-      border-radius: 8px;
-      border: 2px solid var(--primary);
-      background: transparent;
-      color: var(--primary);
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.3s;
-    }
+    button { padding: 12px 25px; border-radius: 8px; border: 2px solid var(--primary); background: transparent; color: var(--primary); font-weight: 600; cursor: pointer; }
     button:hover { background: var(--primary); color: white; }
-    .error { background: #fee2e2; color: #b91c1c; padding: 20px; border-radius: 10px; text-align: center; }
   </style>
 </head>
 <body>
-
-  <nav>
-    <div class="nav-container">
-      <div style="font-size: 20px; font-weight: bold;">AI Resume Analyzer</div>
-      <ul>
-        <li><a href="home.html">Home</a></li>
-        <li><a href="index2.html">Analyze</a></li>
-        <li><a href="index.html">Logout</a></li>
-      </ul>
-    </div>
-  </nav>
-
   <div class="container">
-    <h1>Analysis Results</h1>
-    <p class="subtitle" id="job-info">Reviewing your fit for the role</p>
-
+    <h1 style="text-align:center;">Career Analysis Results</h1>
     <div id="main-content">
-      <p style="text-align: center;">Loading your analysis...</p>
+      <p style="text-align:center;">Loading analysis from database...</p>
     </div>
-
     <div class="actions">
-      <button onclick="window.location.href='index2.html'">New Analysis</button>
-      <button onclick="downloadPDF()">Download Report</button>
-      <button onclick="goToStudyPlan()">Get Study Plan</button>
+      <button onclick="window.location.href='index2.html'">Analyze Another</button>
+      <button onclick="downloadPDF()">Download PDF</button>
+      <button onclick="goToStudyPlan()">Create Study Plan</button>
     </div>
   </div>
 
@@ -130,111 +42,71 @@
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
     import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-    // --- PARSER LOGIC ---
-    // This splits the big string from your main.py into sections
-    function parseAnalysisText(text) {
-      const result = { strengths: [], weaknesses: [], improvements: [], suggestions: [] };
+    // This function takes the big string from your main.py and splits it into boxes
+    function parseAIString(text) {
+      const sections = { strengths: "", weaknesses: "", improvements: "", suggestions: "" };
       
-      const sections = text.split(/(Strengths:|Weaknesses:|Improvement Areas:|Actionable Suggestions:)/i);
+      // Split the text based on your main.py headers
+      const parts = text.split(/(Strengths:|Weaknesses:|Improvement Areas:|Actionable Suggestions:)/i);
       
-      let currentKey = null;
-      sections.forEach(part => {
-        const p = part.trim();
-        if (/^Strengths:$/i.test(p)) currentKey = "strengths";
-        else if (/^Weaknesses:$/i.test(p)) currentKey = "weaknesses";
-        else if (/^Improvement Areas:$/i.test(p)) currentKey = "improvements";
-        else if (/^Actionable Suggestions:$/i.test(p)) currentKey = "suggestions";
-        else if (currentKey && p) {
-          // Split by bullets or newlines
-          const lines = p.split(/\n|-|\*/).map(l => l.trim()).filter(l => l.length > 2);
-          result[currentKey] = lines;
-        }
-      });
-      return result;
+      for (let i = 0; i < parts.length; i++) {
+        const chunk = parts[i].trim();
+        if (/Strengths:/i.test(chunk)) sections.strengths = parts[i+1];
+        if (/Weaknesses:/i.test(chunk)) sections.weaknesses = parts[i+1];
+        if (/Improvement Areas:/i.test(chunk)) sections.improvements = parts[i+1];
+        if (/Actionable Suggestions:/i.test(chunk)) sections.suggestions = parts[i+1];
+      }
+      return sections;
+    }
+
+    function formatAsList(str) {
+      if (!str) return "<li>No specific data points found.</li>";
+      return str.trim().split('\n')
+        .map(line => line.replace(/^[-*•]\s*/, '').trim())
+        .filter(line => line.length > 0)
+        .map(line => `<li>${line}</li>`).join('');
     }
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) { window.location.href = "index.html"; return; }
-
-      const urlParams = new URLSearchParams(window.location.search);
-      const docId = urlParams.get("id");
-
-      if (!docId) {
-        document.getElementById("main-content").innerHTML = "<div class='error'>No analysis ID found.</div>";
-        return;
-      }
+      const docId = new URLSearchParams(window.location.search).get("id");
 
       try {
         const docRef = doc(db, "resumeHistory", user.uid, "analyses", docId);
         const docSnap = await getDoc(docRef);
 
         if (!docSnap.exists()) {
-          document.getElementById("main-content").innerHTML = "<div class='error'>Analysis not found in history.</div>";
+          document.getElementById("main-content").innerHTML = "Error: Analysis not found.";
           return;
         }
 
         const data = docSnap.data();
-        document.getElementById("job-info").innerText = `${data.job_role} at ${data.company}`;
-
-        const parsed = parseAnalysisText(data.analysis || "");
         const score = data.score || 0;
+        const rawText = data.analysis || "";
+        const parsed = parseAIString(rawText);
 
-        // Donut Math
         const radius = 90;
-        const circumference = 2 * Math.PI * radius;
-        const offset = circumference - (score / 100) * circumference;
+        const circ = 2 * Math.PI * radius;
+        const offset = circ - (score / 100) * circ;
 
         document.getElementById("main-content").innerHTML = `
           <div class="score-card">
             <div class="donut">
-              <svg>
-                <circle class="bg-circle" cx="100" cy="100" r="${radius}" />
-                <circle class="progress-circle" id="score-circle" cx="100" cy="100" r="${radius}" 
-                  stroke-dasharray="${circumference}" stroke-dashoffset="${circumference}" />
-              </svg>
+              <svg><circle class="bg-circle" cx="100" cy="100" r="${radius}" /><circle id="bar" class="progress-circle" cx="100" cy="100" r="${radius}" stroke-dasharray="${circ}" stroke-dashoffset="${circ}" /></svg>
               <div class="donut-center">${score}%</div>
             </div>
           </div>
-
-          <div class="card"><h2>Strengths</h2><ul>${parsed.strengths.map(i => `<li>${i}</li>`).join('') || '<li>No data found</li>'}</ul></div>
-          <div class="card"><h2>Weaknesses</h2><ul>${parsed.weaknesses.map(i => `<li>${i}</li>`).join('') || '<li>No data found</li>'}</ul></div>
-          <div class="card"><h2>Improvement Areas</h2><ul>${parsed.improvements.map(i => `<li>${i}</li>`).join('') || '<li>No data found</li>'}</ul></div>
-          <div class="card"><h2>Actionable Suggestions</h2><ul>${parsed.suggestions.map(i => `<li>${i}</li>`).join('') || '<li>No data found</li>'}</ul></div>
+          <div class="card"><h2>Strengths</h2><ul>${formatAsList(parsed.strengths)}</ul></div>
+          <div class="card"><h2>Weaknesses</h2><ul>${formatAsList(parsed.weaknesses)}</ul></div>
+          <div class="card"><h2>Improvement Areas</h2><ul>${formatAsList(parsed.improvements)}</ul></div>
+          <div class="card"><h2>Actionable Suggestions</h2><ul>${formatAsList(parsed.suggestions)}</ul></div>
         `;
 
-        setTimeout(() => {
-          document.getElementById("score-circle").style.strokeDashoffset = offset;
-        }, 100);
-
-        // Save for PDF
-        localStorage.setItem("latestAnalysis", JSON.stringify(data));
-
+        setTimeout(() => { document.getElementById("bar").style.strokeDashoffset = offset; }, 100);
       } catch (err) {
-        console.error(err);
-        document.getElementById("main-content").innerHTML = "<div class='error'>Error loading data from Firebase.</div>";
+        document.getElementById("main-content").innerHTML = "System Error: " + err.message;
       }
     });
-  </script>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script>
-    function downloadPDF() {
-      const data = JSON.parse(localStorage.getItem("latestAnalysis"));
-      if(!data) return;
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      doc.text("Resume Analysis Report", 10, 10);
-      doc.text(`Role: ${data.job_role} at ${data.company}`, 10, 20);
-      doc.text(`Score: ${data.score}%`, 10, 30);
-      const splitText = doc.splitTextToSize(data.analysis, 180);
-      doc.text(splitText, 10, 40);
-      doc.save("Analysis_Report.pdf");
-    }
-
-    function goToStudyPlan() {
-      const urlParams = new URLSearchParams(window.location.search);
-      window.location.href = `createplan.html?id=${urlParams.get("id")}`;
-    }
   </script>
 </body>
 </html>
