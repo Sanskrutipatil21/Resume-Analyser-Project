@@ -5,7 +5,6 @@
   <title>Resume Analysis Result</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- ===== STYLES ===== -->
   <style>
     /* ===== NAV ===== */
     nav {
@@ -27,28 +26,13 @@
       margin: 0;
       padding: 0;
     }
-    nav ul li {
-      margin: 0 25px;
-    }
+    nav ul li { margin: 0 25px; }
     nav ul li a {
       text-decoration: none;
       color: white;
       font-size: 18px;
       font-weight: 500;
       position: relative;
-    }
-    nav ul li a::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: -3px;
-      width: 0%;
-      height: 2px;
-      background: white;
-      transition: width 0.3s ease;
-    }
-    nav ul li a:hover::after {
-      width: 100%;
     }
 
     /* ===== THEME ===== */
@@ -67,21 +51,9 @@
       font-family: system-ui, sans-serif;
     }
 
-    .container {
-      max-width: 900px;
-      margin: auto;
-    }
-
-    h1 {
-      text-align: center;
-      color: #020617;
-    }
-
-    .subtitle {
-      text-align: center;
-      color: var(--muted);
-      margin-bottom: 30px;
-    }
+    .container { max-width: 900px; margin: auto; }
+    h1 { text-align: center; color: #020617; }
+    .subtitle { text-align: center; color: var(--muted); margin-bottom: 30px; }
 
     /* ===== SCORE ===== */
     .score-card {
@@ -94,21 +66,10 @@
       box-shadow: 0 20px 40px rgba(0,0,0,0.4);
     }
 
-    .donut {
-      width: 230px;
-      height: 230px;
-      position: relative;
-    }
-    .donut svg {
-      transform: rotate(-90deg);
-    }
-    .donut circle {
-      fill: none;
-      stroke-width: 26;
-    }
-    .bg {
-      stroke: #1e293b;
-    }
+    .donut { width: 230px; height: 230px; position: relative; }
+    .donut svg { transform: rotate(-90deg); }
+    .donut circle { fill: none; stroke-width: 26; }
+    .bg { stroke: #1e293b; }
     .progress {
       stroke: var(--primary);
       stroke-linecap: round;
@@ -128,31 +89,17 @@
     .card {
       background: var(--card);
       border-radius: 14px;
-      padding: 20px;
+      padding: 25px;
       margin-bottom: 20px;
       color: var(--text);
       box-shadow: 0 10px 30px rgba(0,0,0,0.35);
     }
-
-    h2 {
-      margin-top: 0;
-    }
-
-    ul {
-      padding-left: 20px;
-    }
-
-    li {
-      margin-bottom: 8px;
-    }
+    h2 { margin-top: 0; color: var(--primary); font-size: 1.4rem; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+    ul { padding-left: 20px; margin-top: 15px; }
+    li { margin-bottom: 10px; line-height: 1.5; }
 
     /* ===== ACTIONS ===== */
-    .actions {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin-top: 30px;
-    }
+    .actions { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
     button {
       background: transparent;
       border: 2px solid var(--primary);
@@ -160,25 +107,15 @@
       padding: 12px 20px;
       border-radius: 10px;
       cursor: pointer;
+      font-weight: 600;
       transition: 0.3s ease;
     }
-    button:hover {
-      background: var(--primary);
-      color: white;
-    }
-
-    .error {
-      background: #450a0a;
-      color: #fecaca;
-      padding: 15px;
-      border-radius: 10px;
-      text-align: center;
-    }
+    button:hover { background: var(--primary); color: white; }
+    .error { background: #450a0a; color: #fecaca; padding: 15px; border-radius: 10px; text-align: center; }
   </style>
 </head>
 
 <body>
-  <!-- NAVBAR -->
   <nav>
     <div class="nav-container">
       <div style="color:white;font-weight:600;">Resume Analyzer</div>
@@ -195,16 +132,17 @@
     <h1>Your Career Analysis Results</h1>
     <p class="subtitle">Personalized insights based on your resume</p>
 
-    <div id="content"></div>
+    <div id="content">
+      <p style="text-align:center;">Loading your results...</p>
+    </div>
 
     <div class="actions">
-      <button onclick="goBack()">Analyze Another Resume</button>
+      <button onclick="window.location.href='index2.html'">Analyze Another</button>
       <button onclick="downloadPDF()">Download PDF</button>
       <button onclick="goToStudyPlan()">Create Study Plan</button>
     </div>
   </div>
 
-  <!-- ===== FIREBASE LOGIC ===== -->
   <script type="module">
     import { auth, db } from "./firebase.js";
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
@@ -212,36 +150,16 @@
 
     const content = document.getElementById("content");
 
-    function parseAnalysis(text) {
-      const sections = { strengths: [], weaknesses: [], improvement_areas: [], actionable_suggestions: [] };
-      let current = null;
-      text.split("\n").forEach(line => {
-        line = line.trim();
-        if (/^strengths/i.test(line)) current = "strengths";
-        else if (/^weaknesses/i.test(line)) current = "weaknesses";
-        else if (/^improvement/i.test(line)) current = "improvement_areas";
-        else if (/^actionable/i.test(line)) current = "actionable_suggestions";
-        else if (line.startsWith("-") && current) sections[current].push(line.replace(/^-\s*/, ""));
-      });
-      return sections;
-    }
-
     function getQueryParam(param) {
       const urlParams = new URLSearchParams(window.location.search);
       return urlParams.get(param);
     }
 
     onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = "index.html";
-        return;
-      }
+      if (!user) { window.location.href = "index.html"; return; }
 
       const docId = getQueryParam("id");
-      if (!docId) {
-        content.innerHTML = `<div class="error">No analysis selected.</div>`;
-        return;
-      }
+      if (!docId) { content.innerHTML = `<div class="error">No analysis selected.</div>`; return; }
 
       try {
         const docRef = doc(db, "resumeHistory", user.uid, "analyses", docId);
@@ -253,9 +171,16 @@
         }
 
         const data = docSnap.data();
-        const parsed = parseAnalysis(data.analysis || "");
+        
+        // Use the structured feedback object from your final main.py
+        const fb = data.feedback || {
+          strengths: ["No data"], 
+          weaknesses: ["No data"], 
+          improvement_areas: ["No data"], 
+          actionable_suggestions: ["No data"]
+        };
+        
         const score = Math.min(Math.max(data.score || 0, 0), 100);
-
         const radius = 105;
         const circumference = 2 * Math.PI * radius;
         const offset = circumference - (score / 100) * circumference;
@@ -273,100 +198,73 @@
             </div>
           </div>
 
-          <div class="card"><h2>Strengths</h2><ul>${parsed.strengths.map(i=>`<li>${i}</li>`).join("")}</ul></div>
-          <div class="card"><h2>Weaknesses</h2><ul>${parsed.weaknesses.map(i=>`<li>${i}</li>`).join("")}</ul></div>
-          <div class="card"><h2>Improvement Areas</h2><ul>${parsed.improvement_areas.map(i=>`<li>${i}</li>`).join("")}</ul></div>
-          <div class="card"><h2>Actionable Suggestions</h2><ul>${parsed.actionable_suggestions.map(i=>`<li>${i}</li>`).join("")}</ul></div>
+          <div class="card"><h2>Strengths</h2><ul>${Array.isArray(fb.strengths) ? fb.strengths.map(i=>`<li>${i}</li>`).join("") : `<li>${fb.strengths}</li>`}</ul></div>
+          <div class="card"><h2>Weaknesses</h2><ul>${Array.isArray(fb.weaknesses) ? fb.weaknesses.map(i=>`<li>${i}</li>`).join("") : `<li>${fb.weaknesses}</li>`}</ul></div>
+          <div class="card"><h2>Improvement Areas</h2><ul>${Array.isArray(fb.improvement_areas) ? fb.improvement_areas.map(i=>`<li>${i}</li>`).join("") : `<li>${fb.improvement_areas}</li>`}</ul></div>
+          <div class="card"><h2>Actionable Suggestions</h2><ul>${Array.isArray(fb.actionable_suggestions) ? fb.actionable_suggestions.map(i=>`<li>${i}</li>`).join("") : `<li>${fb.actionable_suggestions}</li>`}</ul></div>
         `;
 
-        requestAnimationFrame(() => {
-          document.querySelector(".progress").style.strokeDashoffset = offset;
-        });
+        setTimeout(() => {
+          const progCircle = document.querySelector(".progress");
+          if(progCircle) progCircle.style.strokeDashoffset = offset;
+        }, 100);
 
-        // Save the latest viewed analysis in localStorage for PDF download
-        localStorage.setItem("analysisResult", JSON.stringify({
-          analysis: data.analysis,
-          score: score
-        }));
+        // Save for PDF and Study Plan
+        localStorage.setItem("currentFeedback", JSON.stringify(fb));
 
       } catch (err) {
         console.error(err);
         content.innerHTML = `<div class="error">Failed to load analysis.</div>`;
       }
     });
-
-    function goBack() {
-      window.location.href = "index2.html";
-    }
   </script>
 
-  <!-- ===== PDF DOWNLOAD ===== -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
-    function parseAnalysis(text) {
-      const sections = { strengths: [], weaknesses: [], improvement_areas: [], actionable_suggestions: [] };
-      let current = null;
-      text.split("\n").forEach(line => {
-        line = line.trim();
-        if (/^strengths/i.test(line)) current = "strengths";
-        else if (/^weaknesses/i.test(line)) current = "weaknesses";
-        else if (/^improvement/i.test(line)) current = "improvement_areas";
-        else if (/^actionable/i.test(line)) current = "actionable_suggestions";
-        else if (line.startsWith("-") && current) sections[current].push(line.replace(/^-\s*/, ""));
-      });
-      return sections;
-    }
-
     function downloadPDF() {
-      const raw = localStorage.getItem("analysisResult");
-      if (!raw) return;
-
-      const data = JSON.parse(raw);
-      const parsed = parseAnalysis(data.analysis || "");
+      const fbRaw = localStorage.getItem("currentFeedback");
+      if (!fbRaw) return alert("No analysis data found.");
+      
+      const fb = JSON.parse(fbRaw);
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-      let y = 15;
+      let y = 20;
 
-      doc.setFontSize(18);
+      doc.setFontSize(22);
+      doc.setTextColor(81, 45, 168);
       doc.text("Resume Analysis Report", 14, y);
-      y += 10;
+      y += 15;
 
-      const add = (title, items) => {
-        doc.setFontSize(14);
+      const addSection = (title, items) => {
+        doc.setFontSize(16);
+        doc.setTextColor(0, 0, 0);
         doc.text(title, 14, y);
-        y += 6;
+        y += 8;
         doc.setFontSize(11);
-        items.forEach(i => {
-          const lines = doc.splitTextToSize("- " + i, 180);
-          doc.text(lines, 18, y);
-          y += lines.length * 6;
+        
+        const list = Array.isArray(items) ? items : [items];
+        list.forEach(item => {
+          const lines = doc.splitTextToSize("• " + item, 180);
+          doc.text(lines, 14, y);
+          y += (lines.length * 6);
         });
-        y += 4;
+        y += 10;
       };
 
+      addSection("Strengths", fb.strengths);
+      addSection("Weaknesses", fb.weaknesses);
+      addSection("Improvement Areas", fb.improvement_areas);
+      addSection("Actionable Suggestions", fb.actionable_suggestions);
 
-      add("Strengths", parsed.strengths);
-      add("Weaknesses", parsed.weaknesses);
-      add("Improvement Areas", parsed.improvement_areas);
-      add("Actionable Suggestions", parsed.actionable_suggestions);
-
-      doc.save("Resume_Analysis_Report.pdf");
+      doc.save("My_Resume_Analysis.pdf");
     }
-    
-      function goToStudyPlan() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const docId = urlParams.get("id");
-    if (docId) {
-        // Redirect to createplan.html with the same ID
-        window.location.href = `createplan.html?id=${docId}`;
-    } else {
-        alert("No analysis ID found. Please try analyzing again.");
-    }
-}
 
+    function goToStudyPlan() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const docId = urlParams.get("id");
+      if (docId) window.location.href = `createplan.html?id=${docId}`;
+      else alert("Error: ID not found.");
+    }
   </script>
-
 </body>
 </html>
-
-
