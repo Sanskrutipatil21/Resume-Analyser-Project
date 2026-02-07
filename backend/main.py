@@ -2,14 +2,12 @@ import io
 import re
 import os
 import pickle
-
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from pypdf import PdfReader
 from docx import Document
 from groq import Groq
-
 
 # ======================================================
 # APP
@@ -23,19 +21,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 # ======================================================
 # LOAD ML MODELS
 # ======================================================
 model = pickle.load(open("resume_model.pkl", "rb"))
 vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
 
-
 # ======================================================
 # GROQ CLIENT
 # ======================================================
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-
 
 # ======================================================
 # HELPERS
@@ -46,7 +41,6 @@ def clean_text(text: str) -> str:
     text = re.sub(r"[^a-z\s]", " ", text)
     text = re.sub(r"\s+", " ", text)
     return text.strip()
-
 
 def extract_text(file: UploadFile) -> str:
     content = file.file.read()
@@ -61,6 +55,33 @@ def extract_text(file: UploadFile) -> str:
 
     return ""
 
+# ======================================================
+# SCORE LOGIC (MATCH BASED ON SKILLS DATASET)
+# ======================================================
+import csv
+
+def compute_match_score(resume_text: str) -> float:
+    """
+    Compare resume text with skills dataset (dataset.csv) and compute percentage match
+    """
+    resume_text = resume_text.lower()
+    dataset_path = "dataset.csv"  # Make sure this CSV exists in backend folder
+    try:
+        with open(dataset_path, newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            skills = []
+            for row in reader:
+                if "Skill" in row:
+                    skill = row["Skill"].strip().lower()
+                    if skill:
+                        skills.append(skill)
+        if not skills:
+            return 0.0
+        matches = sum(1 for skill in skills if skill in resume_text)
+        return round((matches / len(skills)) * 100, 2)
+    except Exception as e:
+        print("Error reading dataset:", e)
+        return 0.0
 
 # ======================================================
 # GROQ AI RESUME ANALYSIS
@@ -106,7 +127,6 @@ Resume:
 
     return response.choices[0].message.content.strip()
 
-
 # ======================================================
 # RESUME ANALYSIS ENDPOINT
 # ======================================================
@@ -124,9 +144,10 @@ async def analyze_resume(
 
     cleaned = clean_text(resume_text)
     vec = vectorizer.transform([cleaned])
-
     predicted_category = model.predict(vec)[0]
-    confidence = max(model.predict_proba(vec)[0]) * 100
+
+    # ===== FIXED SCORE LOGIC =====
+    score = compute_match_score(resume_text)
 
     analysis = get_ai_analysis(resume_text, company, role)
 
@@ -134,10 +155,9 @@ async def analyze_resume(
         "company": company,
         "job_role": role,
         "predicted_category": predicted_category,
-        "match_score": round(confidence, 2),
+        "score": score,             # <-- this goes to result.html
         "analysis": analysis
     }
-
 
 # ======================================================
 # STUDY PLAN REQUEST MODEL
@@ -154,7 +174,6 @@ class StudyPlanRequest(BaseModel):
     studyPreference: str
     biggestChallenge: str
     planFormat: str
-
 
 # ======================================================
 # STUDY PLAN ENDPOINT
