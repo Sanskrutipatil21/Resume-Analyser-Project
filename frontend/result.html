@@ -4,84 +4,56 @@
   <meta charset="UTF-8" />
   <title>Resume Analysis Result</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <style>
-    /* Use your existing CSS here - keep it as is */
-    :root { --primary: #6366f1; --bg: #eae5f9; --card: #0f172a; --text: #e5e7eb; }
-    body { margin: 0; background: var(--bg); padding: 20px; font-family: system-ui, sans-serif; }
-    .container { max-width: 900px; margin: auto; }
-    .score-card { background: #eae5f9; border-radius: 18px; padding: 30px; display: flex; justify-content: center; box-shadow: 0 20px 40px rgba(0,0,0,0.4); margin-bottom: 25px; }
-    .donut { width: 230px; height: 230px; position: relative; }
-    .donut svg { transform: rotate(-90deg); }
-    .donut circle { fill: none; stroke-width: 26; }
-    .bg { stroke: #1e293b; }
-    .progress { stroke: var(--primary); stroke-linecap: round; transition: stroke-dashoffset 1.4s ease; }
-    .donut-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 36px; font-weight: bold; color: var(--primary); }
-    .card { background: var(--card); border-radius: 14px; padding: 20px; margin-bottom: 20px; color: var(--text); }
-    h2 { margin-top: 0; color: var(--primary); }
-    ul { padding-left: 20px; }
-    .actions { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
-    button { border: 2px solid var(--primary); color: var(--primary); padding: 12px 20px; border-radius: 10px; cursor: pointer; background: none; font-weight: 600; }
-    button:hover { background: var(--primary); color: white; }
+    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+    .container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; }
+    h1 { text-align: center; color: #333; }
+    .section { margin-bottom: 20px; }
+    .section h2 { color: #5c6bc0; }
+    .section ul { list-style: disc; padding-left: 20px; }
+    pre { background: #eef; padding: 10px; border-radius: 6px; white-space: pre-wrap; }
   </style>
 </head>
 <body>
-  <nav> </nav>
-
   <div class="container">
-    <h1>Your Career Analysis Results</h1>
-    <div id="content">Loading results...</div>
-    <div class="actions">
-      <button onclick="window.location.href='index2.html'">Analyze Another</button>
-      <button onclick="downloadPDF()">Download PDF</button>
-      <button onclick="goToStudyPlan()">Create Study Plan</button>
+    <h1>Resume Analysis Result</h1>
+
+    <div class="section">
+      <h2>Company:</h2>
+      <p id="company">-</p>
+    </div>
+
+    <div class="section">
+      <h2>Job Role:</h2>
+      <p id="role">-</p>
+    </div>
+
+    <div class="section">
+      <h2>Predicted Category:</h2>
+      <p id="category">-</p>
+    </div>
+
+    <div class="section">
+      <h2>Match Score:</h2>
+      <p id="score">-</p>
+    </div>
+
+    <div class="section">
+      <h2>Analysis:</h2>
+      <pre id="analysis">-</pre>
     </div>
   </div>
 
-  <script type="module">
-    import { auth, db } from "./firebase.js";
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
-    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+  <script>
+    // Fetch result from localStorage or API response
+    const resultData = JSON.parse(localStorage.getItem("resumeResult") || "{}");
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) { window.location.href = "index.html"; return; }
-      const urlParams = new URLSearchParams(window.location.search);
-      const docId = urlParams.get("id");
-
-      try {
-        const docRef = doc(db, "resumeHistory", user.uid, "analyses", docId);
-        const docSnap = await getDoc(docRef);
-        const data = docSnap.exists() ? docSnap.data() : null;
-
-        if (!data) { document.getElementById("content").innerText = "Data not found."; return; }
-
-        const fb = data.feedback || { strengths: [], weaknesses: [], improvement_areas: [], suggestions: [] };
-        const score = data.score || 0;
-        const radius = 105;
-        const circumference = 2 * Math.PI * radius;
-        const offset = circumference - (score / 100) * circumference;
-
-        const formatList = (items) => Array.isArray(items) ? items.map(i => `<li>${i}</li>`).join('') : `<li>${items}</li>`;
-
-        document.getElementById("content").innerHTML = `
-          <div class="score-card">
-            <div class="donut">
-              <svg viewBox="0 0 260 260">
-                <circle class="bg" cx="130" cy="130" r="${radius}" />
-                <circle class="progress" cx="130" cy="130" r="${radius}" stroke-dasharray="${circumference}" stroke-dashoffset="${circumference}" />
-              </svg>
-              <div class="donut-center">${score}%</div>
-            </div>
-          </div>
-          <div class="card"><h2>Strengths</h2><ul>${formatList(fb.strengths)}</ul></div>
-          <div class="card"><h2>Weaknesses</h2><ul>${formatList(fb.weaknesses)}</ul></div>
-          <div class="card"><h2>Improvement Areas</h2><ul>${formatList(fb.improvement_areas)}</ul></div>
-          <div class="card"><h2>Actionable Suggestions</h2><ul>${formatList(fb.suggestions)}</ul></div>
-        `;
-
-        setTimeout(() => { document.querySelector(".progress").style.strokeDashoffset = offset; }, 100);
-        localStorage.setItem("currentFeedback", JSON.stringify(fb));
-      } catch (e) { console.error(e); }
-    });
+    document.getElementById("company").textContent = resultData.company || "-";
+    document.getElementById("role").textContent = resultData.job_role || "-";
+    document.getElementById("category").textContent = resultData.predicted_category || "-";
+    document.getElementById("score").textContent = resultData.match_score ? resultData.match_score + "%" : "-";
+    document.getElementById("analysis").textContent = resultData.analysis || "-";
   </script>
 </body>
 </html>
