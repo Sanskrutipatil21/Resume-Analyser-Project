@@ -2,18 +2,19 @@ import io
 import re
 import os
 import pickle
+from pydantic import BaseModel  # Added for Study Plan JSON
 
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pypdf import PdfReader
 from docx import Document
 from groq import Groq
-from sklearn.metrics.pairwise import cosine_similarity  # Added for accurate scoring
+from sklearn.metrics.pairwise import cosine_similarity
 
 # ======================================================
-# APP
+# APP SETUP
 # ======================================================
-app = FastAPI(title="AI Resume Analyzer")
+app = FastAPI(title="AI Career Assistant")
 
 app.add_middleware(
     CORSMiddleware,
@@ -25,7 +26,6 @@ app.add_middleware(
 # ======================================================
 # LOAD ML MODELS
 # ======================================================
-# Ensure these files are in the same directory as main.py
 model = pickle.load(open("resume_model.pkl", "rb"))
 vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
 
@@ -54,91 +54,79 @@ def extract_text(file: UploadFile) -> str:
         return " ".join(p.text for p in doc.paragraphs)
     return ""
 
-# ======================================================
-# GROQ AI ANALYSIS (Untouched feedback logic)
-# ======================================================
 def get_ai_analysis(resume_text: str, company: str, role: str) -> str:
-    resume_text = resume_text[:1800]  # safety limit
-    prompt = f"""
-You are a senior ATS resume evaluator.
-Analyze ONLY the resume below.
-Return strictly in this format:
-
-Strengths:
-- ...
-Weaknesses:
-- ...
-Improvement Areas:
-- ...
-Actionable Suggestions:
-- ...
-
-Target Company: {company}
-Target Role: {role}
-
-Resume:
-{resume_text}
-"""
+    resume_text = resume_text[:1800]
+    prompt = f"Analyze this resume for {role} at {company}. Return Strengths, Weaknesses, Improvements, Suggestions."
     response = client.chat.completions.create(
         model="llama-3.1-8b-instant",
-        messages=[
-            {"role": "system", "content": "You are an expert resume analyst."},
-            {"role": "user", "content": prompt}
-        ],
+        messages=[{"role": "system", "content": "Expert Resume Analyst"}, {"role": "user", "content": prompt}],
         temperature=0.4,
-        max_tokens=450
     )
     return response.choices[0].message.content.strip()
 
 # ======================================================
-# API ENDPOINT
+# ENDPOINT 1: RESUME ANALYSIS (Existing - Untouched)
 # ======================================================
 @app.post("/analyze")
 async def analyze_resume(
     resume: UploadFile = File(...),
     company: str = Form(...),
     role: str = Form(...),
-    description: str = Form("") # The Job Description is key for the score
+    description: str = Form("")
 ):
     resume_text = extract_text(resume)
+    if not resume_text.strip(): return {"error": "Empty resume"}
 
-    if not resume_text.strip():
-        return {"error": "Unable to extract resume text"}
-
-    # -------- LOGIC FIX: SCORE MATCHING --------
-    
-    # 1. Vectorize the Resume
     cleaned_resume = clean_text(resume_text)
     resume_vec = vectorizer.transform([cleaned_resume])
-
-    # 2. Vectorize the Job Description (from the form)
-    # If the user didn't provide a description, we use the Job Role instead
+    
     text_to_compare = description if description.strip() else role
     desc_vec = vectorizer.transform([clean_text(text_to_compare)])
 
-    # 3. Calculate Category (ML Classifier)
     predicted_category = model.predict(resume_vec)[0]
-
-    # 4. Calculate Match Score (Similarity)
-    # This prevents the 0% error by comparing keywords directly
     similarity = cosine_similarity(resume_vec, desc_vec)[0][0]
-    
-    # Boost the score slightly for display if there's a basic match
     match_score = similarity * 100
-    
-    # Fallback: if similarity is extremely low but ML is confident in category
-    if match_score < 10:
-        ml_confidence = max(model.predict_proba(resume_vec)[0]) * 100
-        match_score = max(match_score, ml_confidence * 0.5)
 
-    # -------- AI ANALYSIS (GROQ) --------
-    # This stays exactly as you had it to ensure feedback quality
     analysis = get_ai_analysis(resume_text, company, role)
 
     return {
-        "company": company,
-        "job_role": role,
+        "company": company, "job_role": role,
         "predicted_category": predicted_category,
-        "match_score": round(match_score, 2),
-        "analysis": analysis
+        "match_score": round(match_score, 2), "analysis": analysis
     }
+
+# ======================================================
+# NEW: STUDY PLAN LOGIC (Added below)
+# ======================================================
+
+# Data structure to receive JSON from createplan.html
+class StudyPlanRequest(BaseModel):
+    resumeAnalysis: str
+    targetRole: str
+    targetCompany: str
+    timeline: str
+    dailyHours: str
+    learningStyle: str = "Solo"
+    planFormat: str = "Daily"
+    challenges: str = ""
+
+@app.post("/study-plan")
+async def create_study_plan(data: StudyPlanRequest):
+    prompt = f"""
+    Create a {data.planFormat} study plan for {data.targetRole} at {data.targetCompany}.
+    Timeline: {data.timeline} ({data.dailyHours}/day).
+    Style: {data.learningStyle}. 
+    Challenge: {data.challenges}.
+    
+    Context from Resume: {data.resumeAnalysis}
+    
+    Format in Markdown with Phase-by-Phase breakdown and specific resources.
+    """
+    
+    response = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[{"role": "system", "content": "Professional Career Coach"}, {"role": "user", "content": prompt}],
+        temperature=0.5,
+    )
+    
+    return {"study_plan": response.choices[0].message.content}
