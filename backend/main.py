@@ -2,7 +2,7 @@ import io
 import re
 import os
 import pickle
-
+import numpy as np
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pypdf import PdfReader
@@ -11,10 +11,11 @@ from groq import Groq
 from sklearn.metrics.pairwise import cosine_similarity
 
 # ======================================================
-# APP
+# APP CONFIGURATION
 # ======================================================
 app = FastAPI(title="AI Resume Analyzer")
 
+# Allowing Frontend to communicate with Backend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -25,12 +26,14 @@ app.add_middleware(
 # ======================================================
 # LOAD ML MODELS
 # ======================================================
-model = pickle.load(open("resume_model.pkl", "rb"))
-vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
+try:
+    # Loading the files you provided
+    model = pickle.load(open("resume_model.pkl", "rb"))
+    vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
+except Exception as e:
+    print(f"CRITICAL ERROR: Could not load pkl files. {e}")
 
-# ======================================================
-# GROQ CLIENT
-# ======================================================
+# Initialize Groq Client
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 # ======================================================
@@ -40,8 +43,7 @@ def clean_text(text: str) -> str:
     text = text.lower()
     text = re.sub(r"http\S+", " ", text)
     text = re.sub(r"[^a-z\s]", " ", text)
-    text = re.sub(r"\s+", " ", text)
-    return text.strip()
+    return re.sub(r"\s+", " ", text).strip()
 
 def extract_text(file: UploadFile) -> str:
     content = file.file.read()
@@ -54,40 +56,32 @@ def extract_text(file: UploadFile) -> str:
     return ""
 
 def get_ai_analysis(resume_text: str, company: str, role: str) -> str:
+    # Limit text to avoid token limits
     resume_text = resume_text[:1800]
     prompt = f"""
-You are a senior ATS resume evaluator.
-Analyze ONLY the resume below.
-Return strictly in this format:
+    You are a senior ATS resume evaluator. Analyze the resume for {role} at {company}.
+    Format your response EXACTLY as follows:
+    
+    Strengths:
+    - (point)
+    Weaknesses:
+    - (point)
+    Improvement Areas:
+    - (point)
+    Actionable Suggestions:
+    - (point)
 
-Strengths:
-- ...
-Weaknesses:
-- ...
-Improvement Areas:
-- ...
-Actionable Suggestions:
-- ...
-
-Target Company: {company}
-Target Role: {role}
-
-Resume:
-{resume_text}
-"""
+    Resume Content: {resume_text}
+    """
     response = client.chat.completions.create(
         model="llama-3.1-8b-instant",
-        messages=[
-            {"role": "system", "content": "You are an expert resume analyst."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.4,
-        max_tokens=450
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.3
     )
-    return response.choices[0].message.content.strip()
+    return response.choices[0].message.content
 
 # ======================================================
-# API ENDPOINT
+# MAIN API ENDPOINT
 # ======================================================
 @app.post("/analyze")
 async def analyze_resume(
@@ -96,30 +90,51 @@ async def analyze_resume(
     role: str = Form(...),
     description: str = Form("")
 ):
-    resume_text = extract_text(resume)
+    try:
+        resume_full_text = extract_text(resume)
+        if not resume_full_text.strip():
+            return {"error": "Could not extract text from the file"}
 
-    if not resume_text.strip():
-        return {"error": "Unable to extract resume text"}
+        # 1. Clean and Vectorize
+        cleaned_resume = clean_text(resume_full_text)
+        resume_vec = vectorizer.transform([cleaned_resume])
+        
+        # If user didn't provide desc, use the role name
+        target_text = clean_text(description if description.strip() else role)
+        desc_vec = vectorizer.transform([target_text])
 
-    # 1. Vectorize
-    cleaned_resume = clean_text(resume_text)
-    resume_vec = vectorizer.transform([cleaned_resume])
+        # 2. Calculate ML Match Score (Cosine Similarity)
+        similarity = cosine_similarity(resume_vec, desc_vec)[0][0]
+        final_score = similarity * 100
 
-    # 2. Match Score
-    text_to_compare = description if description.strip() else role
-    desc_vec = vectorizer.transform([clean_text(text_to_compare)])
-    similarity = cosine_similarity(resume_vec, desc_vec)[0][0]
-    
-    # Calculate Score
-    final_score = round(similarity * 100, 2)
-    
-    # AI Analysis
-    analysis_text = get_ai_analysis(resume_text, company, role)
+        # --- FIX FOR 0% ISSUE ---
+        # If the ML vectorizer doesn't recognize the words, we manually count matching words
+        if final_score < 1:
+            resume_words = set(cleaned_resume.split())
+            job_words = set(target_text.split())
+            common = resume_words.intersection(job_set)
+            if job_words:
+                # Basic overlap percentage as a fallback
+                final_score = (len(common) / len(job_words)) * 100
+            else:
+                # If no role provided, we can't score
+                final_score = 0
 
-    # RETURN KEYS MATCHING RESULT.HTML
-    return {
-        "company": company,
-        "job_role": role,
-        "score": final_score,
-        "analysis": analysis_text
-    }
+        # 3. Get AI Feedback
+        analysis = get_ai_analysis(resume_full_text, company, role)
+
+        # 4. Return Data (Keys are mapped to match result.html)
+        return {
+            "company": company,
+            "job_role": role,
+            "score": round(final_score, 2),
+            "analysis": analysis
+        }
+
+    except Exception as e:
+        print(f"Internal Error: {e}")
+        return {"error": str(e)}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)
