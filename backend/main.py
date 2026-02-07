@@ -9,6 +9,16 @@ from docx import Document
 from groq import Groq
 from sklearn.metrics.pairwise import cosine_similarity
 
+# Firebase Admin for saving results
+import firebase_admin
+from firebase_admin import credentials, firestore
+
+# Initialize Firebase Admin
+if not firebase_admin._apps:
+    cred = credentials.Certificate("serviceAccountKey.json")  # Your service account
+    firebase_admin.initialize_app(cred)
+db = firestore.client()
+
 # ======================================================
 # APP SETUP
 # ======================================================
@@ -61,7 +71,7 @@ def extract_text(file: UploadFile) -> str:
     return ""
 
 def get_ai_analysis(resume_text: str, company: str, role: str) -> str:
-    resume_text = resume_text[:1800]  # safety limit
+    resume_text = resume_text[:1800]  # limit
     prompt = f"""
 You are a senior ATS resume evaluator.
 Analyze ONLY the resume below.
@@ -102,15 +112,19 @@ Resume:
 # ======================================================
 @app.post("/analyze")
 async def analyze_resume(
+    user_id: str = Form(...),          # Firebase user UID
+    resume_id: str = Form(...),        # Unique ID for this resume
     resume: UploadFile = File(...),
     company: str = Form(...),
     role: str = Form(...),
     description: str = Form("")
 ):
+    # Extract text
     resume_text = extract_text(resume)
     if not resume_text.strip():
         return {"error": "Unable to extract resume text"}
 
+    # -------- SCORE CALCULATION --------
     score = 0.0
     predicted_category = "Unknown"
 
@@ -118,13 +132,19 @@ async def analyze_resume(
         try:
             cleaned_resume = clean_text(resume_text)
             resume_vec = vectorizer.transform([cleaned_resume])
+
+            # Use description if provided; else role
             text_to_compare = description if description.strip() else role
             desc_vec = vectorizer.transform([clean_text(text_to_compare)])
 
+            # Predict category
             predicted_category = model.predict(resume_vec)[0]
+
+            # Cosine similarity
             similarity = cosine_similarity(resume_vec, desc_vec)[0][0]
             score = similarity * 100
 
+            # Fallback: ML confidence if similarity too low
             if score < 10:
                 proba = model.predict_proba(resume_vec)[0]
                 ml_conf = max(proba) * 100
@@ -134,16 +154,27 @@ async def analyze_resume(
             print(f"[Warning] Scoring failed: {e}")
             score = 0.0
 
+    # Ensure score is 0-100
     score = min(max(round(score, 2), 0), 100)
+
+    # -------- AI ANALYSIS --------
     analysis = get_ai_analysis(resume_text, company, role)
 
-    return {
+    # -------- SAVE TO FIRESTORE --------
+    data_to_save = {
         "company": company,
         "job_role": role,
         "predicted_category": predicted_category,
-        "score": score,  # frontend uses this to display donut
+        "score": score,
         "analysis": analysis
     }
+    try:
+        db.collection("resumeHistory").document(user_id).collection("analyses").document(resume_id).set(data_to_save)
+    except Exception as e:
+        print(f"[Error] Failed to save to Firestore: {e}")
+
+    # -------- RETURN --------
+    return data_to_save
 
 # ======================================================
 # RUN SERVER
