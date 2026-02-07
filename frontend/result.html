@@ -13,12 +13,12 @@
   --text: #e5e7eb;
   --muted: #94a3b8;
 }
-body { margin: 0; background: var(--bg); padding: 20px; font-family: system-ui, sans-serif; }
-nav { background: linear-gradient(90deg, #5c6bc0, #512da8, #5c6bc0); padding: 22px 0; margin-top: 10px; border-radius: 40px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);}
-.nav-container { display: flex; align-items: center; justify-content: space-between; padding: 0 40px;}
+body { margin:0; background:var(--bg); padding:20px; font-family:system-ui, sans-serif; }
+nav { background:linear-gradient(90deg,#5c6bc0,#512da8,#5c6bc0); padding:22px 0; margin-top:10px; border-radius:40px; box-shadow:0 4px 10px rgba(0,0,0,0.3);}
+.nav-container { display:flex; align-items:center; justify-content:space-between; padding:0 40px;}
 .nav-user { display:flex; align-items:center; gap:10px; color:white; font-size:16px; cursor:pointer; margin-top:6px;}
 .user-avatar { width:36px;height:36px;background:rgba(255,255,255,0.25);border-radius:50%; display:flex;align-items:center;justify-content:center;}
-.user-name { position: relative; padding-bottom:5px;}
+.user-name { position:relative; padding-bottom:5px;}
 .user-name::after { content:''; position:absolute; left:0; bottom:-5px; width:0%; height:3px; background-color:#ffffff; transition: width 0.3s ease; border-radius:4px;}
 .nav-user:hover .user-name::after { width:100%;}
 nav ul { list-style:none; display:flex; padding:0; margin:0;}
@@ -74,77 +74,55 @@ button:hover { background:var(--primary); color:white;}
   </div>
 </div>
 
-<script type="module">
-async function loadAnalysis() {
-  const params = new URLSearchParams(window.location.search);
-  const resumeId = params.get("id");
-  if (!resumeId) {
-    document.getElementById("content").innerHTML = '<div class="error">No analysis selected</div>';
-    return;
-  }
-
-  // Call backend to get analysis
-  try {
-    const response = await fetch(`http://127.0.0.1:8000/analyze?id=${resumeId}`);
-    const data = await response.json();
-    const parsed = parseAnalysis(data.analysis || "");
-    const score = Math.round(data.score || 0);
-
-    const r = 105;
-    const c = 2 * Math.PI * r;
-    const offset = c - (score / 100) * c;
-
-    document.getElementById("content").innerHTML = `
-      <div class="score-card">
-        <div class="donut">
-          <svg viewBox="0 0 260 260">
-            <circle class="bg" cx="130" cy="130" r="${r}" />
-            <circle class="progress" cx="130" cy="130" r="${r}"
-              stroke-dasharray="${c}"
-              stroke-dashoffset="${c}" />
-          </svg>
-          <div class="donut-center">${score}%</div>
-        </div>
-      </div>
-
-      ${makeCard("Strengths", parsed.strengths)}
-      ${makeCard("Weaknesses", parsed.weaknesses)}
-      ${makeCard("Improvement Areas", parsed.improvement_areas)}
-      ${makeCard("Actionable Suggestions", parsed.actionable_suggestions)}
-    `;
-
-    requestAnimationFrame(() => {
-      document.querySelector(".progress").style.strokeDashoffset = offset;
-    });
-
-  } catch (err) {
-    console.error(err);
-    document.getElementById("content").innerHTML = '<div class="error">Failed to load analysis</div>';
-  }
-}
-
-function parseAnalysis(text) {
-  const sections = { strengths: [], weaknesses: [], improvement_areas: [], actionable_suggestions: [] };
-  let current = null;
-  text.split("\n").forEach(line => {
-    line = line.trim();
-    if (!line) return;
-    if (/^strengths/i.test(line)) current="strengths";
-    else if (/^weaknesses/i.test(line)) current="weaknesses";
-    else if (/^improvement/i.test(line)) current="improvement_areas";
-    else if (/^actionable/i.test(line)) current="actionable_suggestions";
-    else if (current) sections[current].push(line.replace(/^-\s*/, ""));
+<script>
+function parseAnalysis(text){
+  const sections={strengths:[],weaknesses:[],improvement_areas:[],actionable_suggestions:[]};
+  let current=null;
+  text.split("\n").forEach(line=>{
+    line=line.trim(); if(!line) return;
+    if(/^strengths/i.test(line)) current="strengths";
+    else if(/^weaknesses/i.test(line)) current="weaknesses";
+    else if(/^improvement/i.test(line)) current="improvement_areas";
+    else if(/^actionable/i.test(line)) current="actionable_suggestions";
+    else if(current) sections[current].push(line.replace(/^-\s*/,""));
   });
   return sections;
 }
 
-function makeCard(title, items) {
-  if (!items.length) return "";
+function makeCard(title, items){
+  if(!items.length) return "";
   return `<div class="card"><h2>${title}</h2><ul>${items.map(i=>`<li>${i}</li>`).join("")}</ul></div>`;
 }
 
-function goBack() { window.location.href="index2.html"; }
-function createPlan() { const id = new URLSearchParams(window.location.search).get("id"); window.location.href=`createplan.html?id=${id}`; }
+function goBack(){window.location.href="index2.html";}
+function createPlan(){window.location.href="createplan.html";}
+
+function loadAnalysis(){
+  const data=JSON.parse(localStorage.getItem("analysisResult"));
+  if(!data){document.getElementById("content").innerHTML='<div class="error">No analysis available</div>'; return;}
+  const parsed=parseAnalysis(data.analysis||"");
+  const score=Math.round(data.match_score||0);
+  const r=105;
+  const c=2*Math.PI*r;
+  const offset=c-(score/100)*c;
+
+  document.getElementById("content").innerHTML=`
+    <div class="score-card">
+      <div class="donut">
+        <svg viewBox="0 0 260 260">
+          <circle class="bg" cx="130" cy="130" r="${r}" />
+          <circle class="progress" cx="130" cy="130" r="${r}" stroke-dasharray="${c}" stroke-dashoffset="${c}" />
+        </svg>
+        <div class="donut-center">${score}%</div>
+      </div>
+    </div>
+    ${makeCard("Strengths", parsed.strengths)}
+    ${makeCard("Weaknesses", parsed.weaknesses)}
+    ${makeCard("Improvement Areas", parsed.improvement_areas)}
+    ${makeCard("Actionable Suggestions", parsed.actionable_suggestions)}
+  `;
+  requestAnimationFrame(()=>{document.querySelector(".progress").style.strokeDashoffset=offset;});
+}
 
 loadAnalysis();
 </script>
