@@ -200,6 +200,7 @@
     <div class="actions">
       <button onclick="goBack()">Analyze Another Resume</button>
       <button onclick="downloadPDF()">Download PDF</button>
+      <button onclick="goToStudyPlan()">Create Study Plan</button>
     </div>
   </div>
 
@@ -343,6 +344,17 @@
         y += 4;
       };
 
+      function goToStudyPlan() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const docId = urlParams.get("id");
+    if (docId) {
+        // Redirect to createplan.html with the same ID
+        window.location.href = `createplan.html?id=${docId}`;
+    } else {
+        alert("No analysis ID found. Please try analyzing again.");
+    }
+}
+
       add("Strengths", parsed.strengths);
       add("Weaknesses", parsed.weaknesses);
       add("Improvement Areas", parsed.improvement_areas);
@@ -354,3 +366,4 @@
 
 </body>
 </html>
+
