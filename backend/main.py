@@ -2,22 +2,17 @@ import io
 import re
 import os
 import pickle
-from datetime import datetime
-
+import numpy as np
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 from pypdf import PdfReader
 from docx import Document
 from groq import Groq
-import firebase_admin
-from firebase_admin import credentials, firestore
+from sklearn.metrics.pairwise import cosine_similarity
 
-# ======================================================
-# APP
-# ======================================================
 app = FastAPI(title="AI Resume Analyzer")
 
+# Enable CORS for frontend communication
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -25,132 +20,85 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ======================================================
-# FIREBASE INIT
-# ======================================================
-if not firebase_admin._apps:
-    cred = credentials.Certificate("firebase_key.json")  # Your Firebase service account key
-    firebase_admin.initialize_app(cred)
-db = firestore.client()
+# Load ML Models
+try:
+    model = pickle.load(open("resume_model.pkl", "rb"))
+    vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
+except Exception as e:
+    print(f"Error loading models: {e}")
 
-# ======================================================
-# LOAD ML MODELS
-# ======================================================
-model = pickle.load(open("resume_model.pkl", "rb"))
-vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
-
-# ======================================================
-# GROQ CLIENT
-# ======================================================
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-# ======================================================
-# HELPERS
-# ======================================================
 def clean_text(text: str) -> str:
-    text = text.lower()
-    text = re.sub(r"http\S+", " ", text)
-    text = re.sub(r"[^a-z\s]", " ", text)
-    text = re.sub(r"\s+", " ", text)
-    return text.strip()
+    text = str(text).lower()
+    text = re.sub(r"[^a-z0-9\s]", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
 
 def extract_text(file: UploadFile) -> str:
     content = file.file.read()
-
     if file.filename.lower().endswith(".pdf"):
         reader = PdfReader(io.BytesIO(content))
         return " ".join(page.extract_text() or "" for page in reader.pages)
-
     if file.filename.lower().endswith(".docx"):
         doc = Document(io.BytesIO(content))
         return " ".join(p.text for p in doc.paragraphs)
-
     return ""
 
-# ======================================================
-# GROQ AI RESUME ANALYSIS
-# ======================================================
-def get_ai_analysis(resume_text: str, company: str, role: str) -> str:
-    resume_text = resume_text[:1800]
-
-    prompt = f"""
-You are a senior ATS resume evaluator.
-
-Analyze ONLY the resume below.
-
-Return strictly in this format:
-
-Strengths:
-- ...
-
-Weaknesses:
-- ...
-
-Improvement Areas:
-- ...
-
-Actionable Suggestions:
-- ...
-
-Target Company: {company}
-Target Role: {role}
-
-Resume:
-{resume_text}
-"""
-
-    response = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
-        messages=[
-            {"role": "system", "content": "You are an expert resume analyst."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.4,
-        max_tokens=450
-    )
-
-    return response.choices[0].message.content.strip()
-
-# ======================================================
-# RESUME ANALYSIS ENDPOINT
-# ======================================================
 @app.post("/analyze")
 async def analyze_resume(
     resume: UploadFile = File(...),
     company: str = Form(...),
     role: str = Form(...),
-    user_id: str = Form(...),
+    description: str = Form("")
 ):
-    resume_text = extract_text(resume)
-    if not resume_text.strip():
-        return {"error": "Unable to extract resume text"}
+    try:
+        raw_text = extract_text(resume)
+        if not raw_text.strip():
+            return {"error": "Could not read resume text"}
 
-    cleaned = clean_text(resume_text)
-    vec = vectorizer.transform([cleaned])
+        cleaned_resume = clean_text(raw_text)
+        target_text = clean_text(description if description.strip() else role)
 
-    predicted_category = model.predict(vec)[0]
-    confidence = max(model.predict_proba(vec)[0]) * 100  # This is the match score
+        # 1. ML SCORING (Cosine Similarity)
+        res_vec = vectorizer.transform([cleaned_resume])
+        target_vec = vectorizer.transform([target_text])
+        score = cosine_similarity(res_vec, target_vec)[0][0] * 100
 
-    # AI Analysis
-    analysis = get_ai_analysis(resume_text, company, role)
+        # 2. FIX FOR 0% ISSUE (Keyword Fallback)
+        if score < 2:
+            res_words = set(cleaned_resume.split())
+            job_words = set(target_text.split())
+            matches = res_words.intersection(job_words)
+            if job_words:
+                score = (len(matches) / len(job_words)) * 100
 
-    # Save to Firestore
-    doc_ref = db.collection("resumeHistory").document(user_id).collection("analyses").document()
-   # ================= FIXED =================
-doc_ref.set({
-    "analysis": analysis,
-    "score": round(confidence, 2),  # <-- key changed to 'score'
-    "predicted_category": predicted_category,
-    "company": company,  # optional: good to save
-    "job_role": role,    # optional: good to save
-    "timestamp": datetime.utcnow().isoformat()
-})
+        # 3. AI ANALYSIS
+        prompt = f"""
+        Analyze this resume for the role '{role}' at '{company}'.
+        Format the output EXACTLY like this:
+        Strengths: (list items)
+        Weaknesses: (list items)
+        Improvement Areas: (list items)
+        Actionable Suggestions: (list items)
+        
+        Resume: {raw_text[:2000]}
+        """
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        analysis = response.choices[0].message.content
 
-return {
-    "doc_id": doc_ref.id,
-    "score": round(confidence, 2),  # <-- key changed to 'score'
-    "analysis": analysis,
-    "predicted_category": predicted_category
-}
+        # RETURN KEYS - These must match the result.html variable names
+        return {
+            "company": company,
+            "job_role": role,
+            "score": round(score, 2),
+            "analysis": analysis
+        }
+    except Exception as e:
+        return {"error": str(e)}
 
-
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)
