@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
 <title>Resume Analysis Result</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 <style>
 :root {
@@ -13,43 +13,43 @@
   --text: #e5e7eb;
   --muted: #94a3b8;
 }
-body {
-  margin:0; padding:20px; font-family: system-ui,sans-serif; background: var(--bg);
-}
-nav {
-  background: linear-gradient(90deg,#5c6bc0,#512da8,#5c6bc0);
-  padding:22px 0; margin-top:10px; border-radius:40px; box-shadow:0 4px 10px rgba(0,0,0,0.3);
-}
-.nav-container {display:flex;align-items:center;justify-content:space-between;padding:0 40px;}
-.nav-user {display:flex;align-items:center;gap:10px;color:white;font-size:16px;cursor:pointer;margin-top:6px;}
-.user-avatar {width:36px;height:36px;background:rgba(255,255,255,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;}
-nav ul {list-style:none;display:flex;margin:0;padding:0;}
-nav ul li {margin:0 35px;}
-nav ul li a {color:white;text-decoration:none;font-size:20px;}
-.container {max-width:900px;margin:auto;}
-h1{text-align:center;color:#020617;}
-.subtitle{text-align:center;color:var(--muted);margin-bottom:30px;}
-.score-card {background:#eae5f9;border-radius:18px;padding:30px;display:flex;justify-content:center;margin-bottom:25px;}
-.donut {width:230px;height:230px;position:relative;}
-.donut svg {transform:rotate(-90deg);}
-.donut circle {fill:none;stroke-width:26;}
-.bg {stroke:#1e293b;}
-.progress {stroke:var(--primary);stroke-linecap:round;transition:stroke-dashoffset 1.2s ease;}
-.donut-center {position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:36px;font-weight:bold;color:var(--primary);}
-.card {background:var(--card);border-radius:14px;padding:20px;margin-bottom:20px;color:var(--text);}
-.card ul {padding-left:20px;}
-.card li {margin-bottom:8px;}
-.actions {display:flex;justify-content:center;gap:15px;margin-top:30px;}
-button {background:transparent;border:2px solid var(--primary);color:var(--primary);padding:12px 20px;border-radius:10px;cursor:pointer;}
-button:hover {background:var(--primary);color:white;}
-.error {background:#450a0a;color:#fecaca;padding:15px;border-radius:10px;text-align:center;}
+body { margin: 0; background: var(--bg); padding: 20px; font-family: system-ui, sans-serif; }
+nav { background: linear-gradient(90deg, #5c6bc0, #512da8, #5c6bc0); padding: 22px 0; margin-top: 10px; border-radius: 40px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);}
+.nav-container { display: flex; align-items: center; justify-content: space-between; padding: 0 40px;}
+.nav-user { display:flex; align-items:center; gap:10px; color:white; font-size:16px; cursor:pointer; margin-top:6px;}
+.user-avatar { width:36px;height:36px;background:rgba(255,255,255,0.25);border-radius:50%; display:flex;align-items:center;justify-content:center;}
+.user-name { position: relative; padding-bottom:5px;}
+.user-name::after { content:''; position:absolute; left:0; bottom:-5px; width:0%; height:3px; background-color:#ffffff; transition: width 0.3s ease; border-radius:4px;}
+.nav-user:hover .user-name::after { width:100%;}
+nav ul { list-style:none; display:flex; padding:0; margin:0;}
+nav ul li { margin:0 35px; position:relative;}
+nav ul li a { text-decoration:none; color:white; font-weight:500; font-size:20px; position:relative; padding-bottom:5px;}
+nav ul li a::after { content:''; position:absolute; left:0; bottom:-5px; width:0%; height:3px; background-color:#ffffff; transition: width 0.3s ease; border-radius:4px;}
+nav ul li a:hover::after { width:100%;}
+.container { max-width:900px; margin:auto;}
+h1 { text-align:center; color:#020617;}
+.subtitle { text-align:center; color:var(--muted); margin-bottom:30px;}
+.score-card { background:#eae5f9; border-radius:18px; padding:30px; display:flex; justify-content:center; margin-bottom:25px;}
+.donut { width:230px; height:230px; position:relative;}
+.donut svg { transform:rotate(-90deg);}
+.donut circle { fill:none; stroke-width:26;}
+.bg { stroke:#1e293b; }
+.progress { stroke: var(--primary); stroke-linecap:round; transition: stroke-dashoffset 1.2s ease;}
+.donut-center { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); font-size:36px; font-weight:bold; color:var(--primary);}
+.card { background:var(--card); border-radius:14px; padding:20px; margin-bottom:20px; color:var(--text);}
+.card ul { padding-left:20px;}
+.card li { margin-bottom:8px;}
+.actions { display:flex; justify-content:center; gap:15px; margin-top:30px;}
+button { background:transparent; border:2px solid var(--primary); color:var(--primary); padding:12px 20px; border-radius:10px; cursor:pointer;}
+button:hover { background:var(--primary); color:white;}
+.error { background:#450a0a; color:#fecaca; padding:15px; border-radius:10px; text-align:center;}
 </style>
 </head>
 <body>
 
 <nav>
   <div class="nav-container">
-    <a href="#" class="nav-user">
+    <a href="profile.html" class="nav-user">
       <div class="user-avatar">👤</div>
       <span id="userName">Guest</span>
     </a>
@@ -65,9 +65,7 @@ button:hover {background:var(--primary);color:white;}
 <div class="container">
   <h1>Your Career Analysis Results</h1>
   <p class="subtitle">Personalized insights based on your resume</p>
-  <div id="content">
-    <div class="error">Loading analysis...</div>
-  </div>
+  <div id="content"></div>
 
   <div class="actions">
     <button onclick="goBack()">Analyze Another Resume</button>
@@ -76,21 +74,21 @@ button:hover {background:var(--primary);color:white;}
   </div>
 </div>
 
-<script>
-const analysisData = JSON.parse(localStorage.getItem("analysisResult") || "{}");
+<script type="module">
+async function loadAnalysis() {
+  const params = new URLSearchParams(window.location.search);
+  const resumeId = params.get("id");
+  if (!resumeId) {
+    document.getElementById("content").innerHTML = '<div class="error">No analysis selected</div>';
+    return;
+  }
 
-async function loadResult() {
-  const resumeId = new URLSearchParams(window.location.search).get("id");
-  if (!resumeId) return document.getElementById("content").innerHTML = '<div class="error">No resume selected</div>';
-
+  // Call backend to get analysis
   try {
-    // Call backend /analyze with resumeId
-    const formData = new FormData();
-    // Assuming resume file info is available in localStorage or fetched from backend
-    // Here we just show score from stored analysis
-    const data = analysisData;
+    const response = await fetch(`http://127.0.0.1:8000/analyze?id=${resumeId}`);
+    const data = await response.json();
     const parsed = parseAnalysis(data.analysis || "");
-    const score = Math.round(data.match_score || 0);
+    const score = Math.round(data.score || 0);
 
     const r = 105;
     const c = 2 * Math.PI * r;
@@ -108,6 +106,7 @@ async function loadResult() {
           <div class="donut-center">${score}%</div>
         </div>
       </div>
+
       ${makeCard("Strengths", parsed.strengths)}
       ${makeCard("Weaknesses", parsed.weaknesses)}
       ${makeCard("Improvement Areas", parsed.improvement_areas)}
@@ -117,9 +116,10 @@ async function loadResult() {
     requestAnimationFrame(() => {
       document.querySelector(".progress").style.strokeDashoffset = offset;
     });
+
   } catch (err) {
-    document.getElementById("content").innerHTML = `<div class="error">Error loading analysis</div>`;
     console.error(err);
+    document.getElementById("content").innerHTML = '<div class="error">Failed to load analysis</div>';
   }
 }
 
@@ -129,10 +129,10 @@ function parseAnalysis(text) {
   text.split("\n").forEach(line => {
     line = line.trim();
     if (!line) return;
-    if (/^strengths/i.test(line)) current = "strengths";
-    else if (/^weaknesses/i.test(line)) current = "weaknesses";
-    else if (/^improvement/i.test(line)) current = "improvement_areas";
-    else if (/^actionable/i.test(line)) current = "actionable_suggestions";
+    if (/^strengths/i.test(line)) current="strengths";
+    else if (/^weaknesses/i.test(line)) current="weaknesses";
+    else if (/^improvement/i.test(line)) current="improvement_areas";
+    else if (/^actionable/i.test(line)) current="actionable_suggestions";
     else if (current) sections[current].push(line.replace(/^-\s*/, ""));
   });
   return sections;
@@ -140,13 +140,13 @@ function parseAnalysis(text) {
 
 function makeCard(title, items) {
   if (!items.length) return "";
-  return `<div class="card"><h2>${title}</h2><ul>${items.map(i => `<li>${i}</li>`).join("")}</ul></div>`;
+  return `<div class="card"><h2>${title}</h2><ul>${items.map(i=>`<li>${i}</li>`).join("")}</ul></div>`;
 }
 
-function goBack() { window.location.href = "index2.html"; }
-function createPlan() { window.location.href = `createplan.html?id=${new URLSearchParams(window.location.search).get("id")}`; }
+function goBack() { window.location.href="index2.html"; }
+function createPlan() { const id = new URLSearchParams(window.location.search).get("id"); window.location.href=`createplan.html?id=${id}`; }
 
-loadResult();
+loadAnalysis();
 </script>
 </body>
 </html>
