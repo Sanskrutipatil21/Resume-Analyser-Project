@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pypdf import PdfReader
 from docx import Document
 from groq import Groq
-from sklearn.metrics.pairwise import cosine_similarity  # Added for accurate scoring
+from sklearn.metrics.pairwise import cosine_similarity
 
 # ======================================================
 # APP
@@ -25,7 +25,6 @@ app.add_middleware(
 # ======================================================
 # LOAD ML MODELS
 # ======================================================
-# Ensure these files are in the same directory as main.py
 model = pickle.load(open("resume_model.pkl", "rb"))
 vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
 
@@ -54,11 +53,8 @@ def extract_text(file: UploadFile) -> str:
         return " ".join(p.text for p in doc.paragraphs)
     return ""
 
-# ======================================================
-# GROQ AI ANALYSIS (Untouched feedback logic)
-# ======================================================
 def get_ai_analysis(resume_text: str, company: str, role: str) -> str:
-    resume_text = resume_text[:1800]  # safety limit
+    resume_text = resume_text[:1800]
     prompt = f"""
 You are a senior ATS resume evaluator.
 Analyze ONLY the resume below.
@@ -98,47 +94,32 @@ async def analyze_resume(
     resume: UploadFile = File(...),
     company: str = Form(...),
     role: str = Form(...),
-    description: str = Form("") # The Job Description is key for the score
+    description: str = Form("")
 ):
     resume_text = extract_text(resume)
 
     if not resume_text.strip():
         return {"error": "Unable to extract resume text"}
 
-    # -------- LOGIC FIX: SCORE MATCHING --------
-    
-    # 1. Vectorize the Resume
+    # 1. Vectorize
     cleaned_resume = clean_text(resume_text)
     resume_vec = vectorizer.transform([cleaned_resume])
 
-    # 2. Vectorize the Job Description (from the form)
-    # If the user didn't provide a description, we use the Job Role instead
+    # 2. Match Score
     text_to_compare = description if description.strip() else role
     desc_vec = vectorizer.transform([clean_text(text_to_compare)])
-
-    # 3. Calculate Category (ML Classifier)
-    predicted_category = model.predict(resume_vec)[0]
-
-    # 4. Calculate Match Score (Similarity)
-    # This prevents the 0% error by comparing keywords directly
     similarity = cosine_similarity(resume_vec, desc_vec)[0][0]
     
-    # Boost the score slightly for display if there's a basic match
-    match_score = similarity * 100
+    # Calculate Score
+    final_score = round(similarity * 100, 2)
     
-    # Fallback: if similarity is extremely low but ML is confident in category
-    if match_score < 10:
-        ml_confidence = max(model.predict_proba(resume_vec)[0]) * 100
-        match_score = max(match_score, ml_confidence * 0.5)
+    # AI Analysis
+    analysis_text = get_ai_analysis(resume_text, company, role)
 
-    # -------- AI ANALYSIS (GROQ) --------
-    # This stays exactly as you had it to ensure feedback quality
-    analysis = get_ai_analysis(resume_text, company, role)
-
+    # RETURN KEYS MATCHING RESULT.HTML
     return {
         "company": company,
         "job_role": role,
-        "predicted_category": predicted_category,
-        "match_score": round(match_score, 2),
-        "analysis": analysis
+        "score": final_score,
+        "analysis": analysis_text
     }
