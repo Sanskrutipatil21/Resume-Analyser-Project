@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pypdf import PdfReader
 from docx import Document
 from groq import Groq
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 app = FastAPI()
@@ -23,14 +24,14 @@ app.add_middleware(
 try:
     model = pickle.load(open("resume_model.pkl", "rb"))
     vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
-except Exception as e:
-    print(f"Model Load Error: {e}")
+except:
+    # fallback: simple TF-IDF if pickle fails
+    vectorizer = TfidfVectorizer()
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def clean_text(text: str) -> str:
     text = text.lower()
-    text = re.sub(r"http\S+", " ", text)
     text = re.sub(r"[^a-z\s]", " ", text)
     return re.sub(r"\s+", " ", text).strip()
 
@@ -44,28 +45,6 @@ def extract_text(file: UploadFile) -> str:
         return " ".join(p.text for p in doc.paragraphs)
     return ""
 
-def get_ai_analysis(resume_text: str, company: str, role: str) -> str:
-    prompt = f"""
-    You are an expert ATS System. Analyze this resume for the role: {role} at {company}.
-    Provide the output in this exact format:
-    Strengths:
-    - point 1
-    Weaknesses:
-    - point 1
-    Improvement Areas:
-    - point 1
-    Actionable Suggestions:
-    - point 1
-    
-    Resume: {resume_text[:2000]}
-    """
-    response = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.3
-    )
-    return response.choices[0].message.content
-
 @app.post("/analyze")
 async def analyze_resume(
     resume: UploadFile = File(...),
@@ -74,37 +53,43 @@ async def analyze_resume(
     description: str = Form("")
 ):
     try:
-        resume_raw = extract_text(resume)
-        cleaned_resume = clean_text(resume_raw)
+        raw_text = extract_text(resume)
+        cleaned_res = clean_text(raw_text)
         
-        # 1. ML Scoring
-        resume_vec = vectorizer.transform([cleaned_resume])
-        target_text = clean_text(description if description.strip() else role)
-        desc_vec = vectorizer.transform([target_text])
+        # Use role + description as target
+        target_text = clean_text(f"{role} {description}")
         
-        similarity = cosine_similarity(resume_vec, desc_vec)[0][0]
-        final_score = similarity * 100
+        # VECTORIZE
+        vecs = vectorizer.fit_transform([cleaned_res, target_text])
+        score = cosine_similarity(vecs[0], vecs[1])[0][0] * 100
+        
+        # fallback keyword match if similarity is too low
+        if score < 5:
+            res_words = set(cleaned_res.split())
+            target_words = set(target_text.split())
+            matches = res_words.intersection(target_words)
+            if target_words:
+                score = (len(matches) / len(target_words)) * 100
+        
+        score = round(min(score, 100), 2)
 
-        # --- FIX FOR 0% SCORE (Keyword Fallback) ---
-        if final_score < 1:
-            res_words = set(cleaned_resume.split())
-            job_words = set(target_text.split())
-            common = res_words.intersection(job_words)
-            if job_words:
-                final_score = (len(common) / len(job_words)) * 100
+        # AI Analysis
+        prompt = f"Analyze this resume for {role} at {company}. Provide Strengths, Weaknesses, Improvement Areas, and Actionable Suggestions. Resume: {raw_text[:1500]}"
+        ai_res = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        analysis = ai_res.choices[0].message.content
 
-        # 2. AI Analysis
-        analysis = get_ai_analysis(resume_raw, company, role)
-
-        # Keys matched to result.html: score, analysis, company, job_role
         return {
             "company": company,
             "job_role": role,
-            "score": round(final_score, 2),
+            "score": score,
             "analysis": analysis
         }
     except Exception as e:
-        return {"error": str(e)}
+        print(f"Server Error: {e}")
+        return {"error": str(e)}, 500
 
 if __name__ == "__main__":
     import uvicorn
