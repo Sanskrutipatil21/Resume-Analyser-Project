@@ -4,138 +4,32 @@
   <meta charset="UTF-8" />
   <title>Resume Analysis Result</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <style>
-    /* ===== NAV ===== */
-    nav {
-      background: linear-gradient(90deg, #5c6bc0, #512da8, #5c6bc0);
-      padding: 22px 0;
-      margin-top: 10px;
-      border-radius: 40px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    }
-    .nav-container {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 40px;
-    }
-    nav ul {
-      list-style: none;
-      display: flex;
-      margin: 0;
-      padding: 0;
-    }
-    nav ul li { margin: 0 25px; }
-    nav ul li a {
-      text-decoration: none;
-      color: white;
-      font-size: 18px;
-      font-weight: 500;
-      position: relative;
-    }
-
-    /* ===== THEME ===== */
-    :root {
-      --primary: #6366f1;
-      --bg: #eae5f9;
-      --card: #0f172a;
-      --text: #e5e7eb;
-      --muted: #94a3b8;
-    }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      padding: 20px;
-      font-family: system-ui, sans-serif;
-    }
-
+    /* Use your existing CSS here - keep it as is */
+    :root { --primary: #6366f1; --bg: #eae5f9; --card: #0f172a; --text: #e5e7eb; }
+    body { margin: 0; background: var(--bg); padding: 20px; font-family: system-ui, sans-serif; }
     .container { max-width: 900px; margin: auto; }
-    h1 { text-align: center; color: #020617; }
-    .subtitle { text-align: center; color: var(--muted); margin-bottom: 30px; }
-
-    /* ===== SCORE ===== */
-    .score-card {
-      background: #eae5f9;
-      border-radius: 18px;
-      padding: 30px;
-      display: flex;
-      justify-content: center;
-      margin-bottom: 25px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-    }
-
+    .score-card { background: #eae5f9; border-radius: 18px; padding: 30px; display: flex; justify-content: center; box-shadow: 0 20px 40px rgba(0,0,0,0.4); margin-bottom: 25px; }
     .donut { width: 230px; height: 230px; position: relative; }
     .donut svg { transform: rotate(-90deg); }
     .donut circle { fill: none; stroke-width: 26; }
     .bg { stroke: #1e293b; }
-    .progress {
-      stroke: var(--primary);
-      stroke-linecap: round;
-      transition: stroke-dashoffset 1.4s ease;
-    }
-    .donut-center {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 36px;
-      font-weight: bold;
-      color: var(--primary);
-    }
-
-    /* ===== CARDS ===== */
-    .card {
-      background: var(--card);
-      border-radius: 14px;
-      padding: 25px;
-      margin-bottom: 20px;
-      color: var(--text);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-    }
-    h2 { margin-top: 0; color: var(--primary); font-size: 1.4rem; border-bottom: 1px solid #334155; padding-bottom: 10px; }
-    ul { padding-left: 20px; margin-top: 15px; }
-    li { margin-bottom: 10px; line-height: 1.5; }
-
-    /* ===== ACTIONS ===== */
+    .progress { stroke: var(--primary); stroke-linecap: round; transition: stroke-dashoffset 1.4s ease; }
+    .donut-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 36px; font-weight: bold; color: var(--primary); }
+    .card { background: var(--card); border-radius: 14px; padding: 20px; margin-bottom: 20px; color: var(--text); }
+    h2 { margin-top: 0; color: var(--primary); }
+    ul { padding-left: 20px; }
     .actions { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
-    button {
-      background: transparent;
-      border: 2px solid var(--primary);
-      color: var(--primary);
-      padding: 12px 20px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: 0.3s ease;
-    }
+    button { border: 2px solid var(--primary); color: var(--primary); padding: 12px 20px; border-radius: 10px; cursor: pointer; background: none; font-weight: 600; }
     button:hover { background: var(--primary); color: white; }
-    .error { background: #450a0a; color: #fecaca; padding: 15px; border-radius: 10px; text-align: center; }
   </style>
 </head>
-
 <body>
-  <nav>
-    <div class="nav-container">
-      <div style="color:white;font-weight:600;">Resume Analyzer</div>
-      <ul>
-        <li><a href="home.html">Home</a></li>
-        <li><a href="index2.html">Analyse</a></li>
-        <li><a href="contact.html">Contact</a></li>
-        <li><a href="index.html">Log Out</a></li>
-      </ul>
-    </div>
-  </nav>
+  <nav> </nav>
 
   <div class="container">
     <h1>Your Career Analysis Results</h1>
-    <p class="subtitle">Personalized insights based on your resume</p>
-
-    <div id="content">
-      <p style="text-align:center;">Loading your results...</p>
-    </div>
-
+    <div id="content">Loading results...</div>
     <div class="actions">
       <button onclick="window.location.href='index2.html'">Analyze Another</button>
       <button onclick="downloadPDF()">Download PDF</button>
@@ -148,123 +42,46 @@
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
     import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-    const content = document.getElementById("content");
-
-    function getQueryParam(param) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(param);
-    }
-
     onAuthStateChanged(auth, async (user) => {
       if (!user) { window.location.href = "index.html"; return; }
-
-      const docId = getQueryParam("id");
-      if (!docId) { content.innerHTML = `<div class="error">No analysis selected.</div>`; return; }
+      const urlParams = new URLSearchParams(window.location.search);
+      const docId = urlParams.get("id");
 
       try {
         const docRef = doc(db, "resumeHistory", user.uid, "analyses", docId);
         const docSnap = await getDoc(docRef);
+        const data = docSnap.exists() ? docSnap.data() : null;
 
-        if (!docSnap.exists()) {
-          content.innerHTML = `<div class="error">Analysis not found.</div>`;
-          return;
-        }
+        if (!data) { document.getElementById("content").innerText = "Data not found."; return; }
 
-        const data = docSnap.data();
-        
-        // Use the structured feedback object from your final main.py
-        const fb = data.feedback || {
-          strengths: ["No data"], 
-          weaknesses: ["No data"], 
-          improvement_areas: ["No data"], 
-          actionable_suggestions: ["No data"]
-        };
-        
-        const score = Math.min(Math.max(data.score || 0, 0), 100);
+        const fb = data.feedback || { strengths: [], weaknesses: [], improvement_areas: [], suggestions: [] };
+        const score = data.score || 0;
         const radius = 105;
         const circumference = 2 * Math.PI * radius;
         const offset = circumference - (score / 100) * circumference;
 
-        content.innerHTML = `
+        const formatList = (items) => Array.isArray(items) ? items.map(i => `<li>${i}</li>`).join('') : `<li>${items}</li>`;
+
+        document.getElementById("content").innerHTML = `
           <div class="score-card">
             <div class="donut">
               <svg viewBox="0 0 260 260">
                 <circle class="bg" cx="130" cy="130" r="${radius}" />
-                <circle class="progress" cx="130" cy="130" r="${radius}"
-                  stroke-dasharray="${circumference}"
-                  stroke-dashoffset="${circumference}" />
+                <circle class="progress" cx="130" cy="130" r="${radius}" stroke-dasharray="${circumference}" stroke-dashoffset="${circumference}" />
               </svg>
               <div class="donut-center">${score}%</div>
             </div>
           </div>
-
-          <div class="card"><h2>Strengths</h2><ul>${Array.isArray(fb.strengths) ? fb.strengths.map(i=>`<li>${i}</li>`).join("") : `<li>${fb.strengths}</li>`}</ul></div>
-          <div class="card"><h2>Weaknesses</h2><ul>${Array.isArray(fb.weaknesses) ? fb.weaknesses.map(i=>`<li>${i}</li>`).join("") : `<li>${fb.weaknesses}</li>`}</ul></div>
-          <div class="card"><h2>Improvement Areas</h2><ul>${Array.isArray(fb.improvement_areas) ? fb.improvement_areas.map(i=>`<li>${i}</li>`).join("") : `<li>${fb.improvement_areas}</li>`}</ul></div>
-          <div class="card"><h2>Actionable Suggestions</h2><ul>${Array.isArray(fb.actionable_suggestions) ? fb.actionable_suggestions.map(i=>`<li>${i}</li>`).join("") : `<li>${fb.actionable_suggestions}</li>`}</ul></div>
+          <div class="card"><h2>Strengths</h2><ul>${formatList(fb.strengths)}</ul></div>
+          <div class="card"><h2>Weaknesses</h2><ul>${formatList(fb.weaknesses)}</ul></div>
+          <div class="card"><h2>Improvement Areas</h2><ul>${formatList(fb.improvement_areas)}</ul></div>
+          <div class="card"><h2>Actionable Suggestions</h2><ul>${formatList(fb.suggestions)}</ul></div>
         `;
 
-        setTimeout(() => {
-          const progCircle = document.querySelector(".progress");
-          if(progCircle) progCircle.style.strokeDashoffset = offset;
-        }, 100);
-
-        // Save for PDF and Study Plan
+        setTimeout(() => { document.querySelector(".progress").style.strokeDashoffset = offset; }, 100);
         localStorage.setItem("currentFeedback", JSON.stringify(fb));
-
-      } catch (err) {
-        console.error(err);
-        content.innerHTML = `<div class="error">Failed to load analysis.</div>`;
-      }
+      } catch (e) { console.error(e); }
     });
-  </script>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script>
-    function downloadPDF() {
-      const fbRaw = localStorage.getItem("currentFeedback");
-      if (!fbRaw) return alert("No analysis data found.");
-      
-      const fb = JSON.parse(fbRaw);
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      let y = 20;
-
-      doc.setFontSize(22);
-      doc.setTextColor(81, 45, 168);
-      doc.text("Resume Analysis Report", 14, y);
-      y += 15;
-
-      const addSection = (title, items) => {
-        doc.setFontSize(16);
-        doc.setTextColor(0, 0, 0);
-        doc.text(title, 14, y);
-        y += 8;
-        doc.setFontSize(11);
-        
-        const list = Array.isArray(items) ? items : [items];
-        list.forEach(item => {
-          const lines = doc.splitTextToSize("• " + item, 180);
-          doc.text(lines, 14, y);
-          y += (lines.length * 6);
-        });
-        y += 10;
-      };
-
-      addSection("Strengths", fb.strengths);
-      addSection("Weaknesses", fb.weaknesses);
-      addSection("Improvement Areas", fb.improvement_areas);
-      addSection("Actionable Suggestions", fb.actionable_suggestions);
-
-      doc.save("My_Resume_Analysis.pdf");
-    }
-
-    function goToStudyPlan() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const docId = urlParams.get("id");
-      if (docId) window.location.href = `createplan.html?id=${docId}`;
-      else alert("Error: ID not found.");
-    }
   </script>
 </body>
 </html>
