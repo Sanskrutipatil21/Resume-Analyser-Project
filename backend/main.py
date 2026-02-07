@@ -2,79 +2,139 @@ import io
 import re
 import os
 import pickle
+
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pypdf import PdfReader
 from docx import Document
 from groq import Groq
 
+
+# ======================================================
+# APP
+# ======================================================
 app = FastAPI(title="AI Resume Analyzer")
 
 app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
+
+# ======================================================
+# LOAD ML MODELS
+# ======================================================
+model = pickle.load(open("resume_model.pkl", "rb"))
+vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
+
+
+# ======================================================
+# GROQ CLIENT
+# ======================================================
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-def extract_text(file: UploadFile) -> str:
-    content = file.file.read()
-    if file.filename.lower().endswith(".pdf"):
-        reader = PdfReader(io.BytesIO(content))
-        return " ".join(page.extract_text() or "" for page in reader.pages)
-    if file.filename.lower().endswith(".docx"):
-        doc = Document(io.BytesIO(content))
-        return " ".join(p.text for p in doc.paragraphs)
-    return ""
 
+# ======================================================
+# HELPERS
+# ======================================================
+def clean_text(text: str) -> str:
+    text = text.lower()
+    text = re.sub(r"http\S+", " ", text)
+    text = re.sub(r"[^a-z\s]", " ", text)
+    text = re.sub(r"\s+", " ", text)
+    return text.strip()
+
+
+def extract_text(file: UploadFile) -> str:
+    content = file.file.read()
+
+    if file.filename.lower().endswith(".pdf"):
+        reader = PdfReader(io.BytesIO(content))
+        return " ".join(page.extract_text() or "" for page in reader.pages)
+
+    if file.filename.lower().endswith(".docx"):
+        doc = Document(io.BytesIO(content))
+        return " ".join(p.text for p in doc.paragraphs)
+
+    return ""
+
+
+# ======================================================
+# GROQ AI ANALYSIS
+# ======================================================
+def get_ai_analysis(resume_text: str, company: str, role: str) -> str:
+    resume_text = resume_text[:1800]  # safety limit
+
+    prompt = f"""
+You are a senior ATS resume evaluator.
+
+Analyze ONLY the resume below.
+
+Return strictly in this format:
+
+Strengths:
+- ...
+
+Weaknesses:
+- ...
+
+Improvement Areas:
+- ...
+
+Actionable Suggestions:
+- ...
+
+Target Company: {company}
+Target Role: {role}
+
+Resume:
+{resume_text}
+"""
+
+    response = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[
+            {"role": "system", "content": "You are an expert resume analyst."},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.4,
+        max_tokens=450
+    )
+
+    return response.choices[0].message.content.strip()
+
+
+# ======================================================
+# API ENDPOINT
+# ======================================================
 @app.post("/analyze")
 async def analyze_resume(
-    resume: UploadFile = File(...),
-    company: str = Form(...),
-    role: str = Form(...),
-    description: str = Form("")
+    resume: UploadFile = File(...),
+    company: str = Form(...),
+    role: str = Form(...),
+    description: str = Form("")
 ):
-    try:
-        resume_text = extract_text(resume)
-        
-        # PROMPT: Asking AI for the percentage
-        prompt = f"""
-        You are an ATS Expert. Analyze this resume for the role '{role}' at '{company}'.
-        
-        Provide the output in this EXACT format:
-        Match Score: [Insert a number between 0-100]%
-        Strengths: (bullet points)
-        Weaknesses: (bullet points)
-        Improvement Areas: (bullet points)
-        Actionable Suggestions: (bullet points)
-        
-        Resume Content: {resume_text[:2000]}
-        """
-        
-        response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            messages=[{"role": "user", "content": prompt}]
-        )
-        full_analysis = response.choices[0].message.content
+    resume_text = extract_text(resume)
 
-        # EXTRACT PERCENTAGE FROM AI TEXT
-        # Searches for "Match Score: 85%" and extracts "85"
-        ai_score = 0
-        match = re.search(r"Match Score:\s*(\d+)", full_analysis)
-        if match:
-            ai_score = int(match.group(1))
+    if not resume_text.strip():
+        return {"error": "Unable to extract resume text"}
 
-        return {
-            "company": company,
-            "job_role": role,
-            "score": ai_score,  # Now using the AI's calculated score
-            "analysis": full_analysis
-        }
-    except Exception as e:
-        return {"error": str(e)}
+    # -------- ML SCORE --------
+    cleaned = clean_text(resume_text)
+    vec = vectorizer.transform([cleaned])
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    predicted_category = model.predict(vec)[0]
+    confidence = max(model.predict_proba(vec)[0]) * 100
+
+    # -------- AI ANALYSIS (GROQ) --------
+    analysis = get_ai_analysis(resume_text, company, role)
+
+    return {
+        "company": company,
+        "job_role": role,
+        "predicted_category": predicted_category,
+        "match_score": round(confidence, 2),
+        "analysis": analysis
+    }
