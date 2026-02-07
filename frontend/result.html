@@ -7,8 +7,9 @@
 :root {
     --primary: #6366f1;
     --bg: #eae5f9;
-    --card: #0f172a;
-    --text: #e5e7eb;
+    --card-bg: #0f172a;
+    --card-text: #e5e7eb;
+    --card-border: #6366f1;
 }
 body {
     background: var(--bg);
@@ -16,7 +17,7 @@ body {
     padding: 20px;
 }
 .container {
-    max-width: 800px;
+    max-width: 900px;
     margin: auto;
 }
 .score-card {
@@ -46,16 +47,24 @@ body {
     transition: 1s;
 }
 .card {
-    background: var(--card);
-    color: var(--text);
+    background: var(--card-bg);
+    color: var(--card-text);
     padding: 20px;
     border-radius: 12px;
     margin-bottom: 15px;
+    border-left: 5px solid var(--card-border);
 }
-h2 {
+.card h2 {
     color: var(--primary);
     margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 18px;
     border-bottom: 1px solid #334;
+    padding-bottom: 5px;
+}
+.card ul {
+    margin: 0;
+    padding-left: 20px;
 }
 </style>
 </head>
@@ -82,7 +91,6 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/fi
 
 onAuthStateChanged(auth, async (user) => {
     if (!user) return;
-
     const id = new URLSearchParams(window.location.search).get("id");
     if (!id) return;
 
@@ -99,17 +107,32 @@ onAuthStateChanged(auth, async (user) => {
         // SCORE & DONUT
         const score = data.score || 0;
         document.getElementById("score-text").innerText = `${score}%`;
-
         const circ = 251.2;
         document.getElementById("progress").style.strokeDashoffset = circ - (score / 100) * circ;
 
-        // AI ANALYSIS CARD
-        document.getElementById("content").innerHTML = `
-            <div class="card">
-                <h2>Detailed Analysis</h2>
-                <pre style="white-space:pre-wrap;">${data.analysis || "No analysis available."}</pre>
-            </div>
-        `;
+        // SPLIT AI ANALYSIS INTO SECTIONS
+        const sections = ["Strengths", "Weaknesses", "Improvement Areas", "Actionable Suggestions"];
+        let html = "";
+
+        if (data.analysis) {
+            sections.forEach(section => {
+                const regex = new RegExp(`${section}:\\s*([\\s\\S]*?)(?=(Strengths:|Weaknesses:|Improvement Areas:|Actionable Suggestions:|$))`, "i");
+                const match = data.analysis.match(regex);
+                if (match && match[1]) {
+                    const items = match[1].trim().split(/\n|-/).filter(s => s.trim() !== "");
+                    html += `
+                        <div class="card">
+                            <h2>${section}</h2>
+                            <ul>
+                                ${items.map(i => `<li>${i.trim()}</li>`).join("")}
+                            </ul>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        document.getElementById("content").innerHTML = html || `<p>No analysis available.</p>`;
     } catch (e) {
         console.error("[Error] Failed to load analysis:", e);
     }
