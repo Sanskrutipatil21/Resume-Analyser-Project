@@ -1,14 +1,13 @@
 import io
 import re
-import os
 import pickle
-
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from pypdf import PdfReader
 from docx import Document
 from groq import Groq
+import os
 
 # ======================================================
 # APP
@@ -60,7 +59,9 @@ def get_ai_analysis(resume_text: str, company: str, role: str) -> str:
     resume_text = resume_text[:1800]
     prompt = f"""
 You are a senior ATS resume evaluator.
+
 Analyze ONLY the resume below.
+
 Return strictly in this format:
 
 Strengths:
@@ -100,6 +101,7 @@ async def analyze_resume(
     resume: UploadFile = File(...),
     company: str = Form(...),
     role: str = Form(...),
+    description: str = Form("")
 ):
     resume_text = extract_text(resume)
     if not resume_text.strip():
@@ -109,7 +111,10 @@ async def analyze_resume(
     vec = vectorizer.transform([cleaned])
 
     predicted_category = model.predict(vec)[0]
-    confidence = max(model.predict_proba(vec)[0]) * 100  # this is the score
+    probabilities = model.predict_proba(vec)[0]
+
+    # Final score: percentage of model confidence
+    confidence = round(max(probabilities) * 100, 2)
 
     analysis = get_ai_analysis(resume_text, company, role)
 
@@ -117,7 +122,7 @@ async def analyze_resume(
         "company": company,
         "job_role": role,
         "predicted_category": predicted_category,
-        "match_score": round(confidence, 2),  # <-- use this in result.html
+        "score": confidence,
         "analysis": analysis
     }
 
