@@ -1,87 +1,42 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Analysis Results</title>
-    <style>
-        :root { --primary: #6366f1; --bg: #eae5f9; --card: #0f172a; --text: #e5e7eb; }
-        body { background: var(--bg); font-family: sans-serif; padding: 20px; color: #1e293b; }
-        .container { max-width: 850px; margin: auto; }
-        .score-card { background: white; border-radius: 20px; padding: 30px; text-align: center; margin-bottom: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .donut { width: 160px; height: 160px; margin: auto; position: relative; }
-        .donut svg { transform: rotate(-90deg); width: 100%; height: 100%; }
-        .circle-bg { fill: none; stroke: #f1f5f9; stroke-width: 10; }
-        .circle-bar { fill: none; stroke: var(--primary); stroke-width: 10; stroke-dasharray: 251.2; stroke-dashoffset: 251.2; transition: 1.5s; stroke-linecap: round; }
-        .score-val { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: var(--primary); }
-        .card { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 15px; color: var(--text); border-left: 5px solid var(--primary); }
-        h2 { margin-top: 0; font-size: 1.1rem; color: var(--primary); border-bottom: 1px solid #334; padding-bottom: 8px; }
-        ul { padding-left: 20px; }
-        li { margin-bottom: 8px; line-height: 1.5; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1 id="job-title" style="text-align:center;">Resume Analysis</h1>
-        <div class="score-card">
-            <div class="donut">
-                <svg viewBox="0 0 100 100">
-                    <circle class="circle-bg" cx="50" cy="50" r="40" />
-                    <circle id="progress" class="circle-bar" cx="50" cy="50" r="40" />
-                </svg>
-                <div id="score-text" class="score-val">0%</div>
-            </div>
-            <h3 id="comp-name" style="margin-top:20px; color:#64748b;"></h3>
-        </div>
+<script type="module">
+import { auth, db } from "./firebase.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
 
-        <div id="analysis-results">
-            <div class="card"><h2>Strengths</h2><ul id="s-list"></ul></div>
-            <div class="card"><h2>Weaknesses</h2><ul id="w-list"></ul></div>
-            <div class="card"><h2>Improvement Areas</h2><ul id="i-list"></ul></div>
-            <div class="card"><h2>Actionable Suggestions</h2><ul id="a-list"></ul></div>
-        </div>
-    </div>
+function parseSection(text, sectionName) {
+    // Regex looks for the section name and captures everything until the next header
+    const regex = new RegExp(`${sectionName}:\\s*([\\s\\S]*?)(?=(Strengths:|Weaknesses:|Improvement Areas:|Actionable Suggestions:|$))`, "i");
+    const match = text.match(regex);
+    if (!match) return "<li>No data provided</li>";
+    
+    return match[1].trim().split('\n')
+        .map(line => line.replace(/^[-*•\d.]+\s*/, '').trim())
+        .filter(l => l.length > 2)
+        .map(l => `<li>${l}</li>`).join('');
+}
 
-    <script type="module">
-        import { auth, db } from "./firebase.js";
-        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
-        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+onAuthStateChanged(auth, async (user) => {
+    const id = new URLSearchParams(window.location.search).get("id");
+    if (!user || !id) return;
 
-        function parseSection(text, sectionName) {
-            const regex = new RegExp(`${sectionName}:\\s*([\\s\\S]*?)(?=(Strengths:|Weaknesses:|Improvement Areas:|Actionable Suggestions:|$))`, "i");
-            const match = text.match(regex);
-            if (!match || !match[1]) return "<li>No specific data found.</li>";
-            return match[1].trim().split('\n')
-                .map(line => line.replace(/^[-*•\d.]+\s*/, '').trim())
-                .filter(line => line.length > 2)
-                .map(line => `<li>${line}</li>`).join('');
-        }
+    const snap = await getDoc(doc(db, "resumeHistory", user.uid, "analyses", id));
+    if (snap.exists()) {
+        const data = snap.data();
+        const raw = data.analysis || "";
 
-        onAuthStateChanged(auth, async (user) => {
-            const id = new URLSearchParams(window.location.search).get("id");
-            if (!user || !id) return;
+        // UI Updates
+        document.getElementById("score-text").innerText = `${data.score}%`;
+        document.getElementById("title").innerText = `${data.job_role} Analysis`;
+        
+        // Donut Chart Animation
+        const circ = 251.2;
+        document.getElementById("progress").style.strokeDashoffset = circ - (data.score / 100) * circ;
 
-            const snap = await getDoc(doc(db, "resumeHistory", user.uid, "analyses", id));
-            if (snap.exists()) {
-                const data = snap.data();
-                
-                // Set Header Info
-                document.getElementById("job-title").innerText = `${data.job_role} Analysis`;
-                document.getElementById("comp-name").innerText = `Target: ${data.company}`;
-                
-                // Animate Score
-                const score = data.score || 0;
-                document.getElementById("score-text").innerText = `${score}%`;
-                const circ = 251.2;
-                document.getElementById("progress").style.strokeDashoffset = circ - (score / 100) * circ;
-
-                // Parse AI Sections
-                const raw = data.analysis || "";
-                document.getElementById("s-list").innerHTML = parseSection(raw, "Strengths");
-                document.getElementById("w-list").innerHTML = parseSection(raw, "Weaknesses");
-                document.getElementById("i-list").innerHTML = parseSection(raw, "Improvement Areas");
-                document.getElementById("a-list").innerHTML = parseSection(raw, "Actionable Suggestions");
-            }
-        });
-    </script>
-</body>
-</html>
+        // Populate Boxes
+        document.getElementById("s-list").innerHTML = parseSection(raw, "Strengths");
+        document.getElementById("w-list").innerHTML = parseSection(raw, "Weaknesses");
+        document.getElementById("i-list").innerHTML = parseSection(raw, "Improvement Areas");
+        document.getElementById("a-list").innerHTML = parseSection(raw, "Actionable Suggestions");
+    }
+});
+</script>
