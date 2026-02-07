@@ -80,7 +80,7 @@
           const rawText = data.analysis;
           const parsed = parseAIString(rawText);
 
-          document.getElementById("header-title").innerText = `${data.job_role} at ${data.company}`;
+          document.getElementById("header-title").innerText = `${data.role} at ${data.company}`;
 
           const radius = 90;
           const circ = 2 * Math.PI * radius;
@@ -108,3 +108,4 @@
   </script>
 </body>
 </html>
+
