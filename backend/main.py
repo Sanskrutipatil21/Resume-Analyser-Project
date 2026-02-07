@@ -136,16 +136,21 @@ async def analyze_resume(
 
     # Save to Firestore
     doc_ref = db.collection("resumeHistory").document(user_id).collection("analyses").document()
-    doc_ref.set({
-        "analysis": analysis,
-        "match_score": round(confidence, 2),  # <- fixed score
-        "predicted_category": predicted_category,
-        "timestamp": datetime.utcnow().isoformat()
-    })
+   # ================= FIXED =================
+doc_ref.set({
+    "analysis": analysis,
+    "score": round(confidence, 2),  # <-- key changed to 'score'
+    "predicted_category": predicted_category,
+    "company": company,  # optional: good to save
+    "job_role": role,    # optional: good to save
+    "timestamp": datetime.utcnow().isoformat()
+})
 
-    return {
-        "doc_id": doc_ref.id,
-        "match_score": round(confidence, 2),
-        "analysis": analysis,
-        "predicted_category": predicted_category
-    }
+return {
+    "doc_id": doc_ref.id,
+    "score": round(confidence, 2),  # <-- key changed to 'score'
+    "analysis": analysis,
+    "predicted_category": predicted_category
+}
+
+
