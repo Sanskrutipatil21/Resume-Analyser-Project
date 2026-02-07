@@ -344,6 +344,15 @@
         y += 4;
       };
 
+
+      add("Strengths", parsed.strengths);
+      add("Weaknesses", parsed.weaknesses);
+      add("Improvement Areas", parsed.improvement_areas);
+      add("Actionable Suggestions", parsed.actionable_suggestions);
+
+      doc.save("Resume_Analysis_Report.pdf");
+    }
+    
       function goToStudyPlan() {
     const urlParams = new URLSearchParams(window.location.search);
     const docId = urlParams.get("id");
@@ -355,15 +364,9 @@
     }
 }
 
-      add("Strengths", parsed.strengths);
-      add("Weaknesses", parsed.weaknesses);
-      add("Improvement Areas", parsed.improvement_areas);
-      add("Actionable Suggestions", parsed.actionable_suggestions);
-
-      doc.save("Resume_Analysis_Report.pdf");
-    }
   </script>
 
 </body>
 </html>
+
 
