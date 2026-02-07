@@ -2,16 +2,16 @@ import io
 import re
 import os
 import pickle
-
+import json
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pypdf import PdfReader
 from docx import Document
 from groq import Groq
-from sklearn.metrics.pairwise import cosine_similarity  # Added for accurate scoring
+from sklearn.metrics.pairwise import cosine_similarity
 
 # ======================================================
-# APP
+# APP SETUP
 # ======================================================
 app = FastAPI(title="AI Resume Analyzer")
 
@@ -22,16 +22,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ======================================================
-# LOAD ML MODELS
-# ======================================================
-# Ensure these files are in the same directory as main.py
+# Load ML Models
 model = pickle.load(open("resume_model.pkl", "rb"))
 vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
-
-# ======================================================
-# GROQ CLIENT
-# ======================================================
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 # ======================================================
@@ -41,8 +34,7 @@ def clean_text(text: str) -> str:
     text = text.lower()
     text = re.sub(r"http\S+", " ", text)
     text = re.sub(r"[^a-z\s]", " ", text)
-    text = re.sub(r"\s+", " ", text)
-    return text.strip()
+    return re.sub(r"\s+", " ", text).strip()
 
 def extract_text(file: UploadFile) -> str:
     content = file.file.read()
@@ -54,41 +46,32 @@ def extract_text(file: UploadFile) -> str:
         return " ".join(p.text for p in doc.paragraphs)
     return ""
 
-# ======================================================
-# GROQ AI ANALYSIS (Untouched feedback logic)
-# ======================================================
-def get_ai_analysis(resume_text: str, company: str, role: str) -> str:
-    resume_text = resume_text[:1800]  # safety limit
+def get_ai_analysis(resume_text: str, company: str, role: str):
+    """
+    Returns a structured JSON object to perfectly fill the UI boxes.
+    """
+    resume_text = resume_text[:1800]
     prompt = f"""
-You are a senior ATS resume evaluator.
-Analyze ONLY the resume below.
-Return strictly in this format:
+    Analyze the resume for the role of {role} at {company}.
+    You MUST return a JSON object with these EXACT keys:
+    "strengths": ["point 1", "point 2"],
+    "weaknesses": ["point 1", "point 2"],
+    "improvement_areas": ["point 1", "point 2"],
+    "actionable_suggestions": ["point 1", "point 2"]
 
-Strengths:
-- ...
-Weaknesses:
-- ...
-Improvement Areas:
-- ...
-Actionable Suggestions:
-- ...
-
-Target Company: {company}
-Target Role: {role}
-
-Resume:
-{resume_text}
-"""
+    Resume: {resume_text}
+    """
+    
     response = client.chat.completions.create(
         model="llama-3.1-8b-instant",
         messages=[
-            {"role": "system", "content": "You are an expert resume analyst."},
+            {"role": "system", "content": "You are a professional resume analyst that outputs only JSON."},
             {"role": "user", "content": prompt}
         ],
-        temperature=0.4,
-        max_tokens=450
+        response_format={"type": "json_object"},
+        temperature=0.4
     )
-    return response.choices[0].message.content.strip()
+    return json.loads(response.choices[0].message.content)
 
 # ======================================================
 # API ENDPOINT
@@ -98,47 +81,31 @@ async def analyze_resume(
     resume: UploadFile = File(...),
     company: str = Form(...),
     role: str = Form(...),
-    description: str = Form("") # The Job Description is key for the score
+    description: str = Form("")
 ):
     resume_text = extract_text(resume)
-
     if not resume_text.strip():
         return {"error": "Unable to extract resume text"}
 
-    # -------- LOGIC FIX: SCORE MATCHING --------
-    
-    # 1. Vectorize the Resume
+    # 1. Scoring Logic
     cleaned_resume = clean_text(resume_text)
     resume_vec = vectorizer.transform([cleaned_resume])
-
-    # 2. Vectorize the Job Description (from the form)
-    # If the user didn't provide a description, we use the Job Role instead
     text_to_compare = description if description.strip() else role
     desc_vec = vectorizer.transform([clean_text(text_to_compare)])
 
-    # 3. Calculate Category (ML Classifier)
+    # 2. Similarity & Category
     predicted_category = model.predict(resume_vec)[0]
-
-    # 4. Calculate Match Score (Similarity)
-    # This prevents the 0% error by comparing keywords directly
     similarity = cosine_similarity(resume_vec, desc_vec)[0][0]
-    
-    # Boost the score slightly for display if there's a basic match
     match_score = similarity * 100
-    
-    # Fallback: if similarity is extremely low but ML is confident in category
-    if match_score < 10:
-        ml_confidence = max(model.predict_proba(resume_vec)[0]) * 100
-        match_score = max(match_score, ml_confidence * 0.5)
 
-    # -------- AI ANALYSIS (GROQ) --------
-    # This stays exactly as you had it to ensure feedback quality
-    analysis = get_ai_analysis(resume_text, company, role)
+    # 3. Structured AI Feedback
+    # This replaces the long string with a clean dictionary
+    feedback = get_ai_analysis(resume_text, company, role)
 
     return {
         "company": company,
         "job_role": role,
         "predicted_category": predicted_category,
         "match_score": round(match_score, 2),
-        "analysis": analysis
+        "feedback": feedback  # Send this to Firebase/Frontend
     }
