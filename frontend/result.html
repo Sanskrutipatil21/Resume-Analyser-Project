@@ -1,103 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
 <title>Resume Analysis Result</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
 <style>
 :root {
-    --primary: #6366f1;
-    --bg: #eae5f9;
-    --card-bg: #0f172a;
-    --card-text: #e5e7eb;
-    --card-border: #6366f1;
+  --primary: #6366f1;
+  --bg: #eae5f9;
+  --card: #0f172a;
+  --text: #e5e7eb;
+  --muted: #94a3b8;
 }
+
 body {
-    background: var(--bg);
-    font-family: sans-serif;
-    padding: 20px;
-}
-.container {
-    max-width: 900px;
-    margin: auto;
-}
-.score-card {
-    background: white;
-    padding: 30px;
-    border-radius: 20px;
-    text-align: center;
-    margin-bottom: 20px;
-    position: relative;
-}
-.donut {
-    width: 150px;
-    height: 150px;
-    margin: auto;
-    position: relative;
-}
-.donut svg {
-    transform: rotate(-90deg);
-    width: 100%;
-    height: 100%;
-}
-.bar {
-    fill: none;
-    stroke: var(--primary);
-    stroke-width: 10;
-    stroke-dasharray: 251.2;
-    stroke-dashoffset: 251.2;
-    transition: 1s;
-}
-#score-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-weight: bold;
-    font-size: 24px;
-}
-.card {
-    background: var(--card-bg);
-    color: var(--card-text);
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 15px;
-    border-left: 5px solid var(--card-border);
-}
-.card h2 {
-    color: var(--primary);
-    margin-top: 0;
-    margin-bottom: 10px;
-    font-size: 18px;
-    border-bottom: 1px solid #334;
-    padding-bottom: 5px;
-}
-.card ul {
-    margin: 0;
-    padding-left: 20px;
+  margin: 0;
+  background: var(--bg);
+  padding: 20px;
+  font-family: system-ui, sans-serif;
 }
 
-
-
-    
-/* ===== Navbar Styling (SAME AS HOME) ===== */
+/* NAVBAR */
 nav {
   background: linear-gradient(90deg, #5c6bc0, #512da8, #5c6bc0);
   padding: 22px 0;
   margin-top: 10px;
   border-radius: 40px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
-
-/* NAV FLEX CONTAINER */
 .nav-container {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 40px;
 }
-
-/* USER PROFILE */
 .nav-user {
   display: flex;
   align-items: center;
@@ -105,170 +42,205 @@ nav {
   color: white;
   font-size: 16px;
   cursor: pointer;
-  margin-top: 6px;
 }
-
 .user-avatar {
   width: 36px;
   height: 36px;
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255,255,255,0.25);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
-.user-name {
-  position: relative;
-  padding-bottom: 5px;
-}
-
-/* USER NAME UNDERLINE */
-.user-name::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -5px;
-  width: 0%;
-  height: 3px;
-  background-color: #ffffff;
-  transition: width 0.3s ease;
-  border-radius: 4px;
-}
-
-.nav-user:hover .user-name::after {
-  width: 100%;
-}
-
-/* NAV LINKS */
 nav ul {
   list-style: none;
   display: flex;
   padding: 0;
   margin: 0;
 }
-
-nav ul li {
-  margin: 0 35px;
-  position: relative;
-}
-
+nav ul li { margin: 0 35px; }
 nav ul li a {
   text-decoration: none;
   color: white;
   font-weight: 500;
   font-size: 20px;
-  position: relative;
-  padding-bottom: 5px;
 }
 
-nav ul li a::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -5px;
-  width: 0%;
-  height: 3px;
-  background-color: #ffffff;
-  transition: width 0.3s ease;
-  border-radius: 4px;
-}
+/* CONTENT */
+.container { max-width: 900px; margin: auto; }
+h1 { text-align: center; color: #020617; }
+.subtitle { text-align: center; color: var(--muted); margin-bottom: 30px; }
 
-nav ul li a:hover::after {
-  width: 100%;
+/* SCORE DONUT */
+.score-card { background: #eae5f9; border-radius: 18px; padding: 30px; display: flex; justify-content: center; margin-bottom: 25px; }
+.donut { width: 230px; height: 230px; position: relative; }
+.donut svg { transform: rotate(-90deg); }
+.donut circle { fill: none; stroke-width: 26; }
+.bg { stroke: #1e293b; }
+.progress { stroke: var(--primary); stroke-linecap: round; transition: stroke-dashoffset 1.2s ease; }
+.donut-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 36px; font-weight: bold; color: var(--primary); }
+
+/* CARDS */
+.card { background: var(--card); border-radius: 14px; padding: 20px; margin-bottom: 20px; color: var(--text); }
+.card ul { padding-left: 20px; }
+.card li { margin-bottom: 8px; }
+
+/* ACTIONS */
+.actions { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
+button {
+  background: transparent;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  padding: 12px 20px;
+  border-radius: 10px;
+  cursor: pointer;
 }
+button:hover { background: var(--primary); color: white; }
+.error { background: #450a0a; color: #fecaca; padding: 15px; border-radius: 10px; text-align: center; }
 </style>
 </head>
+
 <body>
-    <!-- ================= NAVBAR ================= -->
+
+<!-- NAVBAR -->
 <nav>
   <div class="nav-container">
-
-    <!-- User Profile (LEFT) -->
     <a href="profile.html" class="nav-user">
       <div class="user-avatar">👤</div>
-      <span id="userName" class="user-name">Guest</span>
+      <span id="userName">Guest</span>
     </a>
-
-    <!-- Navigation Links (RIGHT) -->
     <ul>
       <li><a href="home.html">Home</a></li>
-      <li><a href="index2.html" class="active">Analyse</a></li>
+      <li><a href="index2.html">Analyse</a></li>
       <li><a href="contact.html">Contact Us</a></li>
-      <li><a href="index.html" onclick="logoutUser()">Log Out</a></li>
+      <li><a href="index.html">Log Out</a></li>
     </ul>
-
   </div>
 </nav>
+
 <div class="container">
-    <h1 id="title" style="text-align:center;">Result</h1>
-    <div class="score-card">
-        <div class="donut">
-            <svg viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="40" stroke="#eee" stroke-width="10" fill="none"/>
-                <circle id="progress" class="bar" cx="50" cy="50" r="40"/>
-            </svg>
-            <div id="score-text">0%</div>
-        </div>
-        <h3 id="subtitle"></h3>
-    </div>
-    <div id="content"></div>
+  <h1>Your Career Analysis Results</h1>
+  <p class="subtitle">Personalized insights based on your resume</p>
+
+  <div id="content"></div>
+
+  <div class="actions">
+    <button onclick="goBack()">Analyze Another Resume</button>
+    <button onclick="downloadPDF()">Download PDF</button>
+    <button onclick="createPlan()">Create Plan</button>
+  </div>
 </div>
 
 <script type="module">
 import { auth, db } from "./firebase.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+// Parse AI analysis into sections
+function parseAnalysis(text) {
+  const sections = { strengths: [], weaknesses: [], improvement_areas: [], actionable_suggestions: [] };
+  let current = null;
+  text.split("\n").forEach(line => {
+    line = line.trim();
+    if (!line) return;
+    if (/^strengths/i.test(line)) current = "strengths";
+    else if (/^weaknesses/i.test(line)) current = "weaknesses";
+    else if (/^improvement/i.test(line)) current = "improvement_areas";
+    else if (/^actionable/i.test(line)) current = "actionable_suggestions";
+    else if (current) sections[current].push(line.replace(/^-\s*/, ""));
+  });
+  return sections;
+}
+
+// Helper to create cards
+function makeCard(title, items) {
+  if (!items || !items.length) return `<div class="card"><h2>${title}</h2><ul><li>No data available</li></ul></div>`;
+  return `<div class="card"><h2>${title}</h2><ul>${items.map(i => `<li>${i}</li>`).join("")}</ul></div>`;
+}
 
 onAuthStateChanged(auth, async (user) => {
-    if (!user) return;
+  if (!user) { window.location.href = "index.html"; return; }
 
-    const id = new URLSearchParams(window.location.search).get("id");
-    if (!id) return;
+  const id = new URLSearchParams(window.location.search).get("id");
+  if (!id) { document.getElementById("content").innerHTML = `<div class="error">No analysis selected</div>`; return; }
 
-    try {
-        const snap = await getDoc(doc(db, "resumeHistory", user.uid, "analyses", id));
-        if (!snap.exists()) return;
+  try {
+    const snap = await getDoc(doc(db, "resumeHistory", user.uid, "analyses", id));
+    if (!snap.exists()) { document.getElementById("content").innerHTML = `<div class="error">Analysis not found</div>`; return; }
 
-        const data = snap.data();
-        console.log("Firestore data:", data); // Debug
+    const data = snap.data();
+    const score = Math.round(data.score || 0); // <-- FIXED: use data.score
+    const parsed = parseAnalysis(data.analysis || "");
 
-        // TITLE & COMPANY
-        document.getElementById("title").innerText = data.job_role || "Analysis";
-        document.getElementById("subtitle").innerText = `Company: ${data.company || ""}`;
+    const r = 105;
+    const c = 2 * Math.PI * r;
+    const offset = c - (score / 100) * c;
 
-        // SCORE & DONUT
-        const score = data.score || 0;
-        document.getElementById("score-text").innerText = `${score}%`;
-        const circ = 251.2;
-        document.getElementById("progress").style.strokeDashoffset = circ - (score / 100) * circ;
+    document.getElementById("content").innerHTML = `
+      <div class="score-card">
+        <div class="donut">
+          <svg viewBox="0 0 260 260">
+            <circle class="bg" cx="130" cy="130" r="${r}" />
+            <circle class="progress" cx="130" cy="130" r="${r}" stroke-dasharray="${c}" stroke-dashoffset="${c}" />
+          </svg>
+          <div class="donut-center">${score}%</div>
+        </div>
+      </div>
 
-        // SPLIT AI ANALYSIS INTO SECTIONS
-        const sections = ["Strengths", "Weaknesses", "Improvement Areas", "Actionable Suggestions"];
-        let html = "";
+      ${makeCard("Strengths", parsed.strengths)}
+      ${makeCard("Weaknesses", parsed.weaknesses)}
+      ${makeCard("Improvement Areas", parsed.improvement_areas)}
+      ${makeCard("Actionable Suggestions", parsed.actionable_suggestions)}
+    `;
 
-        if (data.analysis) {
-            sections.forEach(section => {
-                const regex = new RegExp(`${section}:\\s*([\\s\\S]*?)(?=(Strengths:|Weaknesses:|Improvement Areas:|Actionable Suggestions:|$))`, "i");
-                const match = data.analysis.match(regex);
-                if (match && match[1]) {
-                    const items = match[1].trim().split(/\n|-/).filter(s => s.trim() !== "");
-                    html += `<div class="card">
-                                <h2>${section}</h2>
-                                <ul>
-                                    ${items.map(i => `<li>${i.trim()}</li>`).join("")}
-                                </ul>
-                             </div>`;
-                }
-            });
-        }
+    requestAnimationFrame(() => {
+      document.querySelector(".progress").style.strokeDashoffset = offset;
+    });
 
-        document.getElementById("content").innerHTML = html || `<p>No analysis available.</p>`;
-    } catch (e) {
-        console.error("[Error] Failed to load analysis:", e);
-    }
+    localStorage.setItem("analysisResult", JSON.stringify(data));
+
+  } catch (e) {
+    document.getElementById("content").innerHTML = `<div class="error">Failed to load analysis</div>`;
+  }
 });
+
+function goBack() { window.location.href = "index2.html"; }
+function createPlan() { const id = new URLSearchParams(window.location.search).get("id"); window.location.href = `createplan.html?id=${id}`; }
+
+// PDF download
+function downloadPDF() {
+  const raw = localStorage.getItem("analysisResult");
+  if (!raw) return;
+  const data = JSON.parse(raw);
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  let y = 15;
+
+  doc.setFontSize(18);
+  doc.text("Resume Analysis Report", 14, y); y += 10;
+
+  const add = (title, items) => {
+    doc.setFontSize(14); doc.text(title, 14, y); y += 6;
+    doc.setFontSize(11);
+    (items || []).forEach(i => {
+      const lines = doc.splitTextToSize("- " + i, 180);
+      doc.text(lines, 18, y); y += lines.length * 6;
+    });
+    y += 4;
+  };
+
+  const parsed = parseAnalysis(data.analysis || "");
+  add("Strengths", parsed.strengths);
+  add("Weaknesses", parsed.weaknesses);
+  add("Improvement Areas", parsed.improvement_areas);
+  add("Actionable Suggestions", parsed.actionable_suggestions);
+
+  doc.save("Resume_Analysis_Report.pdf");
+}
 </script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script type="module" src="profile.js"></script>
+<script type="module" src="auth.js"></script>
 </body>
 </html>
-
