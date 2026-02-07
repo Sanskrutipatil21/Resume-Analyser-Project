@@ -10,9 +10,7 @@ from docx import Document
 from groq import Groq
 from sklearn.metrics.pairwise import cosine_similarity
 
-# ======================================================
-# APP SETUP
-# ======================================================
+# --- APP SETUP ---
 app = FastAPI(title="AI Resume Analyzer")
 
 app.add_middleware(
@@ -22,14 +20,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load ML Models
+# --- LOAD ML MODELS ---
 model = pickle.load(open("resume_model.pkl", "rb"))
 vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-# ======================================================
-# HELPERS
-# ======================================================
+# --- HELPERS ---
 def clean_text(text: str) -> str:
     text = text.lower()
     text = re.sub(r"http\S+", " ", text)
@@ -47,35 +43,25 @@ def extract_text(file: UploadFile) -> str:
     return ""
 
 def get_ai_analysis(resume_text: str, company: str, role: str):
-    """
-    Returns a structured JSON object to perfectly fill the UI boxes.
-    """
+    """Returns structured JSON for the UI boxes."""
     resume_text = resume_text[:1800]
     prompt = f"""
-    Analyze the resume for the role of {role} at {company}.
-    You MUST return a JSON object with these EXACT keys:
+    Analyze the resume for {role} at {company}.
+    Return ONLY a JSON object with these keys:
     "strengths": ["point 1", "point 2"],
     "weaknesses": ["point 1", "point 2"],
     "improvement_areas": ["point 1", "point 2"],
-    "actionable_suggestions": ["point 1", "point 2"]
-
-    Resume: {resume_text}
+    "suggestions": ["point 1", "point 2"]
     """
-    
     response = client.chat.completions.create(
         model="llama-3.1-8b-instant",
-        messages=[
-            {"role": "system", "content": "You are a professional resume analyst that outputs only JSON."},
-            {"role": "user", "content": prompt}
-        ],
+        messages=[{"role": "user", "content": prompt}],
         response_format={"type": "json_object"},
         temperature=0.4
     )
     return json.loads(response.choices[0].message.content)
 
-# ======================================================
-# API ENDPOINT
-# ======================================================
+# --- ENDPOINT ---
 @app.post("/analyze")
 async def analyze_resume(
     resume: UploadFile = File(...),
@@ -84,28 +70,22 @@ async def analyze_resume(
     description: str = Form("")
 ):
     resume_text = extract_text(resume)
-    if not resume_text.strip():
-        return {"error": "Unable to extract resume text"}
+    if not resume_text.strip(): return {"error": "Empty resume"}
 
-    # 1. Scoring Logic
+    # Scoring Logic
     cleaned_resume = clean_text(resume_text)
     resume_vec = vectorizer.transform([cleaned_resume])
-    text_to_compare = description if description.strip() else role
-    desc_vec = vectorizer.transform([clean_text(text_to_compare)])
-
-    # 2. Similarity & Category
+    target_text = description if description.strip() else role
+    desc_vec = vectorizer.transform([clean_text(target_text)])
+    
+    match_score = cosine_similarity(resume_vec, desc_vec)[0][0] * 100
     predicted_category = model.predict(resume_vec)[0]
-    similarity = cosine_similarity(resume_vec, desc_vec)[0][0]
-    match_score = similarity * 100
 
-    # 3. Structured AI Feedback
-    # This replaces the long string with a clean dictionary
+    # Feedback Logic
     feedback = get_ai_analysis(resume_text, company, role)
 
     return {
-        "company": company,
-        "job_role": role,
-        "predicted_category": predicted_category,
         "match_score": round(match_score, 2),
-        "feedback": feedback  # Send this to Firebase/Frontend
+        "predicted_category": predicted_category,
+        "feedback": feedback
     }
