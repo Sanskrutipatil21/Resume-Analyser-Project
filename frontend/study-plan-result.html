@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Personalized Study Plan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f7f8ff; color: #333; line-height: 1.6; margin: 0; padding: 40px 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        h1 { color: #512da8; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        #planContent h1, #planContent h2 { color: #5c6bc0; margin-top: 30px; }
+        #planContent ul { padding-left: 20px; }
+        #planContent li { margin-bottom: 10px; }
+        .actions { margin-top: 40px; display: flex; gap: 15px; }
+        .btn { padding: 12px 25px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; text-decoration: none; }
+        .btn-print { background: #512da8; color: white; }
+        .btn-back { background: #eee; color: #555; }
+        @media print { .actions { display: none; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Your Success Roadmap</h1>
+    <div id="planContent">
+        <p>Loading your personalized plan...</p>
+    </div>
+
+    <div class="actions">
+        <button onclick="window.print()" class="btn btn-print">Download as PDF</button>
+        <a href="createplan.html" class="btn btn-back">Create New Plan</a>
+    </div>
+</div>
+
+<script>
+    // 1. Get the data stored in sessionStorage from the previous page
+    const rawData = sessionStorage.getItem("studyPlanData");
+
+    if (rawData) {
+        // 2. Convert Markdown to HTML and display it
+        document.getElementById('planContent').innerHTML = marked.parse(rawData);
+    } else {
+        document.getElementById('planContent').innerHTML = "<p>No plan found. Please go back and generate one.</p>";
+    }
+</script>
+
+</body>
+</html>
