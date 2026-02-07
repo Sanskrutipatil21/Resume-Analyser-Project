@@ -61,8 +61,7 @@ def extract_text(file: UploadFile) -> str:
     return ""
 
 def get_ai_analysis(resume_text: str, company: str, role: str) -> str:
-    """Generates AI analysis using Groq (GROQ API)."""
-    resume_text = resume_text[:1800]  # limit to first 1800 chars
+    resume_text = resume_text[:1800]  # safety limit
     prompt = f"""
 You are a senior ATS resume evaluator.
 Analyze ONLY the resume below.
@@ -108,12 +107,10 @@ async def analyze_resume(
     role: str = Form(...),
     description: str = Form("")
 ):
-    # Extract text
     resume_text = extract_text(resume)
     if not resume_text.strip():
         return {"error": "Unable to extract resume text"}
 
-    # -------- SCORE CALCULATION --------
     score = 0.0
     predicted_category = "Unknown"
 
@@ -121,19 +118,13 @@ async def analyze_resume(
         try:
             cleaned_resume = clean_text(resume_text)
             resume_vec = vectorizer.transform([cleaned_resume])
-
-            # Use description if provided; else role
             text_to_compare = description if description.strip() else role
             desc_vec = vectorizer.transform([clean_text(text_to_compare)])
 
-            # Predict category
             predicted_category = model.predict(resume_vec)[0]
-
-            # Cosine similarity
             similarity = cosine_similarity(resume_vec, desc_vec)[0][0]
             score = similarity * 100
 
-            # Fallback: ML confidence if similarity too low
             if score < 10:
                 proba = model.predict_proba(resume_vec)[0]
                 ml_conf = max(proba) * 100
@@ -143,18 +134,14 @@ async def analyze_resume(
             print(f"[Warning] Scoring failed: {e}")
             score = 0.0
 
-    # Ensure score is 0-100
     score = min(max(round(score, 2), 0), 100)
-
-    # -------- AI ANALYSIS --------
     analysis = get_ai_analysis(resume_text, company, role)
 
-    # -------- RETURN --------
     return {
         "company": company,
         "job_role": role,
         "predicted_category": predicted_category,
-        "score": score,          # Frontend-friendly
+        "score": score,  # frontend uses this to display donut
         "analysis": analysis
     }
 
