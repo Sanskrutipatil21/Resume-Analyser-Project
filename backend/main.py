@@ -2,8 +2,6 @@ import io
 import re
 import os
 import pickle
-from pydantic import BaseModel  # Added for Study Plan JSON
-
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pypdf import PdfReader
@@ -11,10 +9,8 @@ from docx import Document
 from groq import Groq
 from sklearn.metrics.pairwise import cosine_similarity
 
-# ======================================================
-# APP SETUP
-# ======================================================
-app = FastAPI(title="AI Career Assistant")
+# --- APP SETUP ---
+app = FastAPI(title="AI Resume Feedback System")
 
 app.add_middleware(
     CORSMiddleware,
@@ -23,26 +19,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ======================================================
-# LOAD ML MODELS
-# ======================================================
+# --- LOAD ML MODELS ---
 model = pickle.load(open("resume_model.pkl", "rb"))
 vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
-
-# ======================================================
-# GROQ CLIENT
-# ======================================================
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-# ======================================================
-# HELPERS
-# ======================================================
+# --- HELPERS ---
 def clean_text(text: str) -> str:
     text = text.lower()
     text = re.sub(r"http\S+", " ", text)
     text = re.sub(r"[^a-z\s]", " ", text)
-    text = re.sub(r"\s+", " ", text)
-    return text.strip()
+    return re.sub(r"\s+", " ", text).strip()
 
 def extract_text(file: UploadFile) -> str:
     content = file.file.read()
@@ -56,7 +43,7 @@ def extract_text(file: UploadFile) -> str:
 
 def get_ai_analysis(resume_text: str, company: str, role: str) -> str:
     resume_text = resume_text[:1800]
-    prompt = f"Analyze this resume for {role} at {company}. Return Strengths, Weaknesses, Improvements, Suggestions."
+    prompt = f"Analyze this resume for {role} at {company}. Return Strengths, Weaknesses, Improvements, Suggestions. No bolding."
     response = client.chat.completions.create(
         model="llama-3.1-8b-instant",
         messages=[{"role": "system", "content": "Expert Resume Analyst"}, {"role": "user", "content": prompt}],
@@ -64,9 +51,7 @@ def get_ai_analysis(resume_text: str, company: str, role: str) -> str:
     )
     return response.choices[0].message.content.strip()
 
-# ======================================================
-# ENDPOINT 1: RESUME ANALYSIS (Existing - Untouched)
-# ======================================================
+# --- FEEDBACK ENDPOINT ---
 @app.post("/analyze")
 async def analyze_resume(
     resume: UploadFile = File(...),
@@ -90,43 +75,9 @@ async def analyze_resume(
     analysis = get_ai_analysis(resume_text, company, role)
 
     return {
-        "company": company, "job_role": role,
+        "company": company, 
+        "job_role": role,
         "predicted_category": predicted_category,
-        "match_score": round(match_score, 2), "analysis": analysis
+        "match_score": round(match_score, 2), 
+        "analysis": analysis
     }
-
-# ======================================================
-# NEW: STUDY PLAN LOGIC (Added below)
-# ======================================================
-
-# Data structure to receive JSON from createplan.html
-class StudyPlanRequest(BaseModel):
-    resumeAnalysis: str
-    targetRole: str
-    targetCompany: str
-    timeline: str
-    dailyHours: str
-    learningStyle: str = "Solo"
-    planFormat: str = "Daily"
-    challenges: str = ""
-
-@app.post("/study-plan")
-async def create_study_plan(data: StudyPlanRequest):
-    prompt = f"""
-    Create a {data.planFormat} study plan for {data.targetRole} at {data.targetCompany}.
-    Timeline: {data.timeline} ({data.dailyHours}/day).
-    Style: {data.learningStyle}. 
-    Challenge: {data.challenges}.
-    
-    Context from Resume: {data.resumeAnalysis}
-    
-    Format in Markdown with Phase-by-Phase breakdown and specific resources.
-    """
-    
-    response = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
-        messages=[{"role": "system", "content": "Professional Career Coach"}, {"role": "user", "content": prompt}],
-        temperature=0.5,
-    )
-    
-    return {"study_plan": response.choices[0].message.content}
