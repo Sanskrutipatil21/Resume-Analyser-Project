@@ -41,7 +41,6 @@
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
     import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-    // Precise parsing of the AI string
     function parseAIString(text) {
       const sections = { strengths: "", weaknesses: "", improvements: "", suggestions: "" };
       const parts = text.split(/(Strengths:|Weaknesses:|Improvement Areas:|Actionable Suggestions:)/i);
@@ -60,7 +59,7 @@
       if (!str) return "<li>No data</li>";
       return str.trim().split('\n')
         .map(line => line.replace(/^[-*•]\s*/, '').trim())
-        .filter(line => line.length > 0)
+        .filter(line => line.length > 2)
         .map(line => `<li>${line}</li>`).join('');
     }
 
@@ -75,12 +74,14 @@
         if (docSnap.exists()) {
           const data = docSnap.data();
           
-          // MAP DATA FIELDS
-          const score = data.score;
-          const rawText = data.analysis;
+          // KEY FIX: Changed data.role to data.job_role to match main.py
+          const jobRole = data.job_role || "Position";
+          const company = data.company || "Amazon";
+          const score = data.score || 0;
+          const rawText = data.analysis || "";
           const parsed = parseAIString(rawText);
 
-          document.getElementById("header-title").innerText = `${data.role} at ${data.company}`;
+          document.getElementById("header-title").innerText = `${jobRole} at ${company}`;
 
           const radius = 90;
           const circ = 2 * Math.PI * radius;
@@ -89,7 +90,11 @@
           document.getElementById("main-content").innerHTML = `
             <div class="score-card">
               <div class="donut">
-                <svg><circle class="bg-circle" cx="100" cy="100" r="${radius}" /><circle id="bar" class="progress-circle" cx="100" cy="100" r="${radius}" stroke-dasharray="${circ}" stroke-dashoffset="${circ}" /></svg>
+                <svg viewBox="0 0 200 200">
+                    <circle class="bg-circle" cx="100" cy="100" r="${radius}" />
+                    <circle id="bar" class="progress-circle" cx="100" cy="100" r="${radius}" 
+                            stroke-dasharray="${circ}" stroke-dashoffset="${circ}" />
+                </svg>
                 <div class="donut-center">${score}%</div>
               </div>
             </div>
@@ -108,4 +113,3 @@
   </script>
 </body>
 </html>
-
