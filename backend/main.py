@@ -2,6 +2,7 @@ import io
 import re
 import os
 import pickle
+
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -44,56 +45,22 @@ def clean_text(text: str) -> str:
 
 def extract_text(file: UploadFile) -> str:
     content = file.file.read()
-
     if file.filename.lower().endswith(".pdf"):
         reader = PdfReader(io.BytesIO(content))
         return " ".join(page.extract_text() or "" for page in reader.pages)
-
     if file.filename.lower().endswith(".docx"):
         doc = Document(io.BytesIO(content))
         return " ".join(p.text for p in doc.paragraphs)
-
     return ""
-
-# ======================================================
-# SCORE LOGIC (MATCH BASED ON SKILLS DATASET)
-# ======================================================
-import csv
-
-def compute_match_score(resume_text: str) -> float:
-    """
-    Compare resume text with skills dataset (dataset.csv) and compute percentage match
-    """
-    resume_text = resume_text.lower()
-    dataset_path = "dataset.csv"  # Make sure this CSV exists in backend folder
-    try:
-        with open(dataset_path, newline="", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            skills = []
-            for row in reader:
-                if "Skill" in row:
-                    skill = row["Skill"].strip().lower()
-                    if skill:
-                        skills.append(skill)
-        if not skills:
-            return 0.0
-        matches = sum(1 for skill in skills if skill in resume_text)
-        return round((matches / len(skills)) * 100, 2)
-    except Exception as e:
-        print("Error reading dataset:", e)
-        return 0.0
 
 # ======================================================
 # GROQ AI RESUME ANALYSIS
 # ======================================================
 def get_ai_analysis(resume_text: str, company: str, role: str) -> str:
     resume_text = resume_text[:1800]
-
     prompt = f"""
 You are a senior ATS resume evaluator.
-
 Analyze ONLY the resume below.
-
 Return strictly in this format:
 
 Strengths:
@@ -114,7 +81,6 @@ Target Role: {role}
 Resume:
 {resume_text}
 """
-
     response = client.chat.completions.create(
         model="llama-3.1-8b-instant",
         messages=[
@@ -124,7 +90,6 @@ Resume:
         temperature=0.4,
         max_tokens=450
     )
-
     return response.choices[0].message.content.strip()
 
 # ======================================================
@@ -135,19 +100,16 @@ async def analyze_resume(
     resume: UploadFile = File(...),
     company: str = Form(...),
     role: str = Form(...),
-    description: str = Form("")
 ):
     resume_text = extract_text(resume)
-
     if not resume_text.strip():
         return {"error": "Unable to extract resume text"}
 
     cleaned = clean_text(resume_text)
     vec = vectorizer.transform([cleaned])
-    predicted_category = model.predict(vec)[0]
 
-    # ===== FIXED SCORE LOGIC =====
-    score = compute_match_score(resume_text)
+    predicted_category = model.predict(vec)[0]
+    confidence = max(model.predict_proba(vec)[0]) * 100  # this is the score
 
     analysis = get_ai_analysis(resume_text, company, role)
 
@@ -155,7 +117,7 @@ async def analyze_resume(
         "company": company,
         "job_role": role,
         "predicted_category": predicted_category,
-        "score": score,             # <-- this goes to result.html
+        "match_score": round(confidence, 2),  # <-- use this in result.html
         "analysis": analysis
     }
 
@@ -200,7 +162,6 @@ Preferred Plan Format: {request.planFormat}
 
 Return a clean study plan in steps or bullet points, suitable for front-end display.
 """
-
     response = client.chat.completions.create(
         model="llama-3.1-8b-instant",
         messages=[{"role": "user", "content": prompt}],
@@ -208,6 +169,4 @@ Return a clean study plan in steps or bullet points, suitable for front-end disp
         max_tokens=1000
     )
 
-    return {
-        "study_plan": response.choices[0].message.content.strip()
-    }
+    return {"study_plan": response.choices[0].message.content.strip()}
