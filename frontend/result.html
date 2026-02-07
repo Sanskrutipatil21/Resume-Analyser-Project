@@ -26,14 +26,13 @@
 </head>
 <body>
   <div class="container">
-    <h1 style="text-align:center;">Career Analysis Results</h1>
+    <h1 style="text-align:center;" id="header-title">Career Analysis Results</h1>
     <div id="main-content">
-      <p style="text-align:center;">Loading analysis from database...</p>
+      <p style="text-align:center;">Fetching data...</p>
     </div>
     <div class="actions">
       <button onclick="window.location.href='index2.html'">Analyze Another</button>
-      <button onclick="downloadPDF()">Download PDF</button>
-      <button onclick="goToStudyPlan()">Create Study Plan</button>
+      <button onclick="window.print()">Print Report</button>
     </div>
   </div>
 
@@ -42,11 +41,9 @@
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
     import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-    // This function takes the big string from your main.py and splits it into boxes
+    // Precise parsing of the AI string
     function parseAIString(text) {
       const sections = { strengths: "", weaknesses: "", improvements: "", suggestions: "" };
-      
-      // Split the text based on your main.py headers
       const parts = text.split(/(Strengths:|Weaknesses:|Improvement Areas:|Actionable Suggestions:)/i);
       
       for (let i = 0; i < parts.length; i++) {
@@ -60,7 +57,7 @@
     }
 
     function formatAsList(str) {
-      if (!str) return "<li>No specific data points found.</li>";
+      if (!str) return "<li>No data</li>";
       return str.trim().split('\n')
         .map(line => line.replace(/^[-*•]\s*/, '').trim())
         .filter(line => line.length > 0)
@@ -75,36 +72,37 @@
         const docRef = doc(db, "resumeHistory", user.uid, "analyses", docId);
         const docSnap = await getDoc(docRef);
 
-        if (!docSnap.exists()) {
-          document.getElementById("main-content").innerHTML = "Error: Analysis not found.";
-          return;
-        }
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          
+          // MAP DATA FIELDS
+          const score = data.score;
+          const rawText = data.analysis;
+          const parsed = parseAIString(rawText);
 
-        const data = docSnap.data();
-        const score = data.score || 0;
-        const rawText = data.analysis || "";
-        const parsed = parseAIString(rawText);
+          document.getElementById("header-title").innerText = `${data.job_role} at ${data.company}`;
 
-        const radius = 90;
-        const circ = 2 * Math.PI * radius;
-        const offset = circ - (score / 100) * circ;
+          const radius = 90;
+          const circ = 2 * Math.PI * radius;
+          const offset = circ - (score / 100) * circ;
 
-        document.getElementById("main-content").innerHTML = `
-          <div class="score-card">
-            <div class="donut">
-              <svg><circle class="bg-circle" cx="100" cy="100" r="${radius}" /><circle id="bar" class="progress-circle" cx="100" cy="100" r="${radius}" stroke-dasharray="${circ}" stroke-dashoffset="${circ}" /></svg>
-              <div class="donut-center">${score}%</div>
+          document.getElementById("main-content").innerHTML = `
+            <div class="score-card">
+              <div class="donut">
+                <svg><circle class="bg-circle" cx="100" cy="100" r="${radius}" /><circle id="bar" class="progress-circle" cx="100" cy="100" r="${radius}" stroke-dasharray="${circ}" stroke-dashoffset="${circ}" /></svg>
+                <div class="donut-center">${score}%</div>
+              </div>
             </div>
-          </div>
-          <div class="card"><h2>Strengths</h2><ul>${formatAsList(parsed.strengths)}</ul></div>
-          <div class="card"><h2>Weaknesses</h2><ul>${formatAsList(parsed.weaknesses)}</ul></div>
-          <div class="card"><h2>Improvement Areas</h2><ul>${formatAsList(parsed.improvements)}</ul></div>
-          <div class="card"><h2>Actionable Suggestions</h2><ul>${formatAsList(parsed.suggestions)}</ul></div>
-        `;
+            <div class="card"><h2>Strengths</h2><ul>${formatAsList(parsed.strengths)}</ul></div>
+            <div class="card"><h2>Weaknesses</h2><ul>${formatAsList(parsed.weaknesses)}</ul></div>
+            <div class="card"><h2>Improvement Areas</h2><ul>${formatAsList(parsed.improvements)}</ul></div>
+            <div class="card"><h2>Actionable Suggestions</h2><ul>${formatAsList(parsed.suggestions)}</ul></div>
+          `;
 
-        setTimeout(() => { document.getElementById("bar").style.strokeDashoffset = offset; }, 100);
+          setTimeout(() => { document.getElementById("bar").style.strokeDashoffset = offset; }, 100);
+        }
       } catch (err) {
-        document.getElementById("main-content").innerHTML = "System Error: " + err.message;
+        console.error(err);
       }
     });
   </script>
