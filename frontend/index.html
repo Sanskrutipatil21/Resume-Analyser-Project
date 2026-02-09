@@ -55,9 +55,10 @@
 
     <button type="submit">Sign In</button>
 
-<a href="home.html" id="guestBtn" class="guest-btn">
+<button type="button" id="guestBtn" class="guest-btn">
   Stay logged out
-</a>
+</button>
+
 
   </form>
 </div>
@@ -92,6 +93,35 @@
 
   <!-- Auth Logic -->
   <script type="module" src="auth.js"></script>
+
+
+<script type="module">
+import { signOut } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+import { auth } from "./firebase.js";
+
+const guestBtn = document.getElementById("guestBtn");
+
+if (guestBtn) {
+  guestBtn.addEventListener("click", async () => {
+    try {
+      // Enable guest mode
+      localStorage.setItem("guest", "true");
+
+      // Force logout from Firebase
+      await signOut(auth);
+
+      // Redirect
+      window.location.href = "home.html";
+    } catch (error) {
+      console.error("Guest login error:", error);
+      window.location.href = "home.html";
+    }
+  });
+}
+</script>
+
+
+
 
 </body>
 </html>
