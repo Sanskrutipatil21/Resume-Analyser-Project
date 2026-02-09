@@ -138,15 +138,16 @@ nav ul li a:hover::after {
     }
 
     /* ===== SCORE ===== */
-    .score-card {
-      background: #eae5f9;
-      border-radius: 18px;
-      padding: 30px;
-      display: flex;
-      justify-content: center;
-      margin-bottom: 25px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-    }
+.score-card {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 30px;
+  background: none;
+  box-shadow: none;
+  padding: 0;
+}
+
 
     .donut {
       width: 230px;
@@ -164,7 +165,7 @@ nav ul li a:hover::after {
     }
 
     .bg {
-      stroke: #1e293b;
+      stroke: #ffffff;
     }
 
     .progress {
@@ -184,14 +185,22 @@ nav ul li a:hover::after {
     }
 
     /* ===== CARDS ===== */
-    .card {
-      background: var(--card);
-      border-radius: 14px;
-      padding: 20px;
-      margin-bottom: 20px;
-      color: var(--text);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-    }
+  .card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 22px;
+  margin-bottom: 22px;
+  color: #1e293b;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  border-left: 6px solid #6366f1;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 28px rgba(0,0,0,0.12);
+}
+
 
     h2 {
       margin-top: 0;
@@ -388,6 +397,8 @@ function downloadPDF() {
   doc.save("Resume_Analysis_Report.pdf");
 }
 </script>
+<script type="module" src="auth.js"></script>
+<script type="module" src="script2.js"></script>
 
 </body>
 </html>
