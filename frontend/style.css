@@ -207,3 +207,20 @@ body{
 .guest-btn:hover {
     text-decoration: underline;
 }
+/* Only Stay Logged Out button */
+button#guestBtn {
+    background: none;
+    border: none;
+    color: #555;
+    font-size: 13px;
+    margin-top: 12px;
+    padding: 0;
+    cursor: pointer;
+    text-transform: none;      /* remove uppercase */
+    letter-spacing: normal;
+}
+
+/* underline only on hover */
+button#guestBtn:hover {
+    text-decoration: underline;
+}
