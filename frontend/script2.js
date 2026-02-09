@@ -94,7 +94,9 @@ if (analyzeBtn) {
     formData.append("description", descriptionInput.value.trim());
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/analyze", {
+      // ---------- Updated: Use Render Backend ----------
+      const backendURL = "https://resume-analyser-project.onrender.com";
+      const response = await fetch(`${backendURL}/analyze`, {
         method: "POST",
         body: formData
       });
